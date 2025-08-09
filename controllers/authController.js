@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
-const jwt =require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
-// signupUser, verifyEmail, and loginUser functions are correct and do not need changes.
+// @desc    Register/Signup a new user and send verification email
 const signupUser = async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -19,12 +19,12 @@ const signupUser = async (req, res) => {
       emailVerificationToken: crypto.createHash('sha256').update(verificationToken).digest('hex'),
     });
     if (user) {
-      const verificationUrl = `http://localhost:5000/api/auth/verify-email/${verificationToken}`;
+      // Use the new environment variable for the live URL
+      const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email/${verificationToken}`;
       const message = `
         <h1>Account Verification</h1>
         <p>Thank you for registering! Please click the link below to verify your email address:</p>
         <a href="${verificationUrl}" clicktracking=off>${verificationUrl}</a>
-        <p>This link will expire in 10 minutes.</p>
       `;
       try {
         await sendEmail({
@@ -49,6 +49,47 @@ const signupUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Forgot password
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(200).json({ success: true, message: 'If a user with that email exists, a password reset link has been sent.' });
+    }
+    const resetToken = user.getResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+
+    // Use the new environment variable for the live URL
+    const resetUrl = `${process.env.BACKEND_URL}/api/auth/reset-password/${resetToken}`;
+
+    const message = `
+      <h1>Password Reset Request</h1>
+      <p>Please click the link below to reset your password:</p>
+      <a href="${resetUrl}" clicktracking=off>${resetUrl}</a>
+    `;
+    await sendEmail({
+      email: user.email,
+      subject: 'Hackathon Lab - Password Reset',
+      message,
+    });
+    res.status(200).json({ success: true, message: 'If a user with that email exists, a password reset link has been sent.' });
+  } catch (err) {
+    console.error(err);
+    const user = await User.findOne({ email });
+    if (user) {
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+    }
+    return res.status(500).json({ message: 'Email could not be sent' });
+  }
+};
+
+
+// ... (The rest of the file: verifyEmail, loginUser, showResetPasswordForm, resetPassword, and exports remain the same) ...
+// ... (Make sure to include the rest of the functions from the previous version) ...
 const verifyEmail = async (req, res) => {
     const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
     try {
@@ -84,47 +125,6 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
-// @desc    Forgot password
-const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(200).json({ success: true, message: 'If a user with that email exists, a password reset link has been sent.' });
-    }
-    const resetToken = user.getResetPasswordToken();
-    await user.save({ validateBeforeSave: false });
-
-    const resetUrl = `http://localhost:5000/api/auth/reset-password/${resetToken}`;
-
-    const message = `
-      <h1>Password Reset Request</h1>
-      <p>Please click the link below to reset your password:</p>
-      <a href="${resetUrl}" clicktracking=off>${resetUrl}</a>
-      <p>This link is valid for 10 minutes.</p>
-    `;
-
-    await sendEmail({
-      email: user.email,
-      subject: 'Hackathon Lab - Password Reset',
-      message,
-    });
-    res.status(200).json({ success: true, message: 'If a user with that email exists, a password reset link has been sent.' });
-  } catch (err) {
-    console.error(err);
-    const user = await User.findOne({ email });
-    if (user) {
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-        await user.save({ validateBeforeSave: false });
-    }
-    return res.status(500).json({ message: 'Email could not be sent' });
-  }
-};
-
-// @desc    Show reset password form
 const showResetPasswordForm = (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.send(`
@@ -158,25 +158,20 @@ const showResetPasswordForm = (req, res) => {
             <script>
                 document.getElementById('resetForm').addEventListener('submit', async function(e) {
                     e.preventDefault();
-                    
                     const pathParts = window.location.pathname.split('/');
                     const token = pathParts[pathParts.length - 1];
-
                     const password = document.getElementById('password').value;
                     const confirmPassword = document.getElementById('confirmPassword').value;
                     const messageEl = document.getElementById('message');
                     const buttonEl = document.querySelector('button');
-
                     if (password !== confirmPassword) {
                         messageEl.textContent = 'Passwords do not match!';
                         messageEl.style.color = 'red';
                         return;
                     }
-
                     buttonEl.disabled = true;
                     messageEl.textContent = 'Resetting...';
                     messageEl.style.color = 'black';
-
                     try {
                         const response = await fetch('/api/auth/reset-password/' + token, {
                             method: 'POST',
@@ -204,18 +199,14 @@ const showResetPasswordForm = (req, res) => {
         </html>
     `);
 };
-
-
-// @desc    Reset password (Handles the POST request from the form)
 const resetPassword = async (req, res) => {
   const resetPasswordToken = crypto
     .createHash('sha256')
     .update(req.params.token)
     .digest('hex');
   try {
-    // This query now explicitly maps the variable to the database field name
     const user = await User.findOne({
-      passwordResetToken: resetPasswordToken, // ✅ Correct reference
+      passwordResetToken: resetPasswordToken,
       passwordResetExpires: { $gt: Date.now() },
     });
     if (!user) {
@@ -230,8 +221,6 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// Export all the controller functions
 module.exports = {
   signupUser,
   verifyEmail,
