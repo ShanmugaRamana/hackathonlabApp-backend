@@ -15,25 +15,23 @@ const updateProfile = async (req, res) => {
       
       // --- THIS IS THE CORRECTED LOGIC ---
       // Safely handle the interestedDomains field
-      if (req.body.interestedDomains && req.body.interestedDomains.length > 0) {
-        try {
-          // This will correctly parse the JSON string array sent from the app
-          user.interestedDomains = JSON.parse(req.body.interestedDomains);
-        } catch (e) {
-          console.error("Failed to parse interestedDomains:", e);
-          // If parsing fails, you could decide to keep the old value or clear it
-          // For now, we'll log the error and not update the field to prevent bad data.
+      if (req.body.hasOwnProperty('interestedDomains')) {
+        if (req.body.interestedDomains.length > 0) {
+          try {
+            user.interestedDomains = JSON.parse(req.body.interestedDomains);
+          } catch (e) {
+            console.error("Failed to parse interestedDomains:", e);
+          }
+        } else {
+          user.interestedDomains = [];
         }
-      } else {
-        // If the field is empty or not provided, you might want to clear it or keep the old value
-        user.interestedDomains = []; // Example: Clearing the domains if none are sent
       }
 
       // If a new file was uploaded by multer, its buffer will be in req.file
       if (req.file) {
         // Upload the file buffer to ImageKit
         const response = await imagekit.upload({
-          file: req.file.buffer, // required: The file buffer
+          file: req.file.buffer.toString('base64'),
           fileName: req.file.originalname, // required: The original file name
           folder: 'hackathon-lab-profiles', // A folder name in your ImageKit account
         });
