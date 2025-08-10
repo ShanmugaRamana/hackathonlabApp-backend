@@ -1,37 +1,43 @@
-// Import necessary packages
 const express = require('express');
+const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');
-const homeRoutes = require('./routes/homeRoutes'); // <-- Import home routes
+const homeRoutes = require('./routes/homeRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
-// Load environment variables from .env file
 dotenv.config();
-
-// Initialize Express app
 const app = express();
-
-// Connect to the database
 connectDB();
 
-// Middleware
+// --- View Engine Setup ---
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// --- Middleware ---
 app.use(cors());
 app.use(express.json());
-
-// A simple test route
-app.get('/', (req, res) => {
-  res.send('Hackathon Lab API is running...');
-});
+app.use(express.urlencoded({ extended: true })); // To parse form data
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
 
 // --- Mount Routers ---
 app.use('/api/auth', authRoutes);
-app.use('/api/home', homeRoutes); // <-- Mount home routes
+app.use('/api/home', homeRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
