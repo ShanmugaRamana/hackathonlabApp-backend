@@ -11,6 +11,8 @@ const authRoutes = require('./routes/authRoutes');
 const homeRoutes = require('./routes/homeRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const roleRoutes = require('./routes/roleRoutes'); // <-- Import the new role routes
+const profileRoutes = require('./routes/profileRoutes'); // <-- Import the new profile routes
+
 
 dotenv.config();
 const app = express();
@@ -36,6 +38,7 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes); // <-- Mount the new role routes
+app.use('/api/profile', profileRoutes); // <-- Mount the new profile routes
 app.use('/dashboard', dashboardRoutes);
 
 const PORT = process.env.PORT || 5000;
