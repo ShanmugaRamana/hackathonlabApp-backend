@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Requests</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h1 class="logo">HackathonLab</h1>
+            <nav class="menu">
+                <a href="/dashboard" class="menu-item">
+                    <span class="icon">🚀</span>
+                    Dashboard
+                </a>
+                <a href="/dashboard/roles" class="menu-item active">
+                    <span class="icon">🛡️</span>
+                    Role Requests
+                </a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h2>Pending Role Requests</h2>
+            </header>
+            <section class="content">
+                <% if (requests.length > 0) { %>
+                    <table class="requests-table">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Email</th>
+                                <th>Requested Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% requests.forEach(request => { %>
+                                <tr>
+                                    <td><%= request.userName %></td>
+                                    <td><%= request.userEmail %></td>
+                                    <td><span class="role-tag"><%= request.requestedRole %></span></td>
+                                    <td>
+                                        <form action="/dashboard/roles/approve/<%= request._id %>" method="POST" style="display:inline;">
+                                            <button type="submit" class="button approve">Approve</button>
+                                        </form>
+                                        <form action="/dashboard/roles/reject/<%= request._id %>" method="POST" style="display:inline;">
+                                            <button type="submit" class="button reject">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <p>No pending role requests.</p>
+                <% } %>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
