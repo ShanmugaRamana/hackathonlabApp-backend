@@ -6,18 +6,32 @@ const imagekit = require('../config/imagekit'); // Import the ImageKit config
 // @access  Private
 const updateProfile = async (req, res) => {
   try {
+    console.log('=== Profile Update Debug Info ===');
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file ? {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      fieldname: req.file.fieldname
+    } : 'No file uploaded');
+    console.log('User ID:', req.user._id);
+
     const user = await User.findById(req.user._id);
     
     // If user doesn't exist
     if (!user) {
+      console.log('❌ User not found');
       return res.status(404).json({ message: 'User not found' });
     }
+
+    console.log('✅ User found:', user.name);
 
     // Update basic fields with sanitization
     if (req.body.name) {
       const trimmedName = req.body.name.trim();
       if (trimmedName.length > 0 && trimmedName.length <= 100) {
         user.name = trimmedName;
+        console.log('✅ Name updated:', trimmedName);
       } else {
         return res.status(400).json({ message: 'Name must be between 1 and 100 characters' });
       }
@@ -27,6 +41,7 @@ const updateProfile = async (req, res) => {
       const trimmedBio = req.body.bio.trim();
       if (trimmedBio.length <= 500) {
         user.bio = trimmedBio;
+        console.log('✅ Bio updated');
       } else {
         return res.status(400).json({ message: 'Bio must be 500 characters or less' });
       }
@@ -36,6 +51,7 @@ const updateProfile = async (req, res) => {
       const trimmedRollNumber = req.body.rollNumber.trim();
       if (trimmedRollNumber.length > 0) {
         user.rollNumber = trimmedRollNumber;
+        console.log('✅ Roll number updated:', trimmedRollNumber);
       }
     }
 
@@ -63,6 +79,7 @@ const updateProfile = async (req, res) => {
             typeof domain === 'string' && domain.trim().length > 0 && domain.trim().length <= 50
           );
           user.interestedDomains = validDomains;
+          console.log('✅ Interested domains updated:', validDomains);
         } else {
           return res.status(400).json({ message: 'Maximum 10 interested domains allowed' });
         }
@@ -71,57 +88,89 @@ const updateProfile = async (req, res) => {
 
     // --- Handle profile picture upload ---
     if (req.file) {
+      console.log('📸 Processing file upload...');
+      console.log('File details:', {
+        name: req.file.originalname,
+        size: req.file.size,
+        type: req.file.mimetype,
+        bufferLength: req.file.buffer ? req.file.buffer.length : 'No buffer'
+      });
+
       try {
         // Validate file type
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
         if (!allowedTypes.includes(req.file.mimetype)) {
+          console.log('❌ Invalid file type:', req.file.mimetype);
           return res.status(400).json({ message: 'Only JPEG, PNG, and WebP images are allowed' });
         }
 
         // Validate file size (e.g., 5MB limit)
         if (req.file.size > 5 * 1024 * 1024) {
+          console.log('❌ File too large:', req.file.size);
           return res.status(400).json({ message: 'Image size must be less than 5MB' });
         }
+
+        console.log('✅ File validation passed');
+        console.log('🚀 Uploading to ImageKit...');
+
+        // Check ImageKit configuration
+        console.log('ImageKit config check:', {
+          hasPublicKey: !!imagekit.publicKey,
+          hasPrivateKey: !!imagekit.privateKey,
+          hasUrlEndpoint: !!imagekit.urlEndpoint
+        });
 
         // Upload to ImageKit
         const response = await imagekit.upload({
           file: req.file.buffer.toString('base64'),
           fileName: `profile-${user._id}-${Date.now()}-${req.file.originalname}`,
           folder: 'hackathon-lab-profiles',
-          transformation: {
-            pre: 'w-300,h-300,c-maintain_ratio'
-          }
         });
 
-        // Optional: Delete old profile picture from ImageKit
-        if (user.profilePicture && user.profilePicture.includes('ik.imagekit.io')) {
-          try {
-            // Extract fileId from URL - this is a simplified approach
-            // You might need to store fileId separately in your database for proper deletion
-            const urlParts = user.profilePicture.split('/');
-            const fileName = urlParts[urlParts.length - 1];
-            // You would need the actual fileId for deletion
-            // await imagekit.deleteFile(fileId);
-          } catch (deleteError) {
-            console.warn('Could not delete old profile picture:', deleteError);
-          }
-        }
+        console.log('✅ ImageKit upload successful:', {
+          url: response.url,
+          fileId: response.fileId,
+          name: response.name
+        });
 
+        // Store old profile picture URL for potential cleanup
+        const oldProfilePicture = user.profilePicture;
+        
+        // Update user's profile picture
         user.profilePicture = response.url;
+        
+        console.log('✅ Profile picture URL updated from:', oldProfilePicture, 'to:', response.url);
+
       } catch (uploadError) {
-        console.error('ImageKit upload failed:', uploadError);
+        console.error('❌ ImageKit upload failed:', uploadError);
+        console.error('Upload error details:', {
+          message: uploadError.message,
+          stack: uploadError.stack,
+          response: uploadError.response?.data
+        });
         return res.status(500).json({ 
           message: 'Image upload failed. Please try again.',
           error: process.env.NODE_ENV === 'development' ? uploadError.message : undefined
         });
       }
+    } else {
+      console.log('ℹ️  No file to upload');
     }
 
+    console.log('💾 Saving user to database...');
+    
     // Save updated user
     const updatedUser = await user.save();
+    
+    console.log('✅ User saved successfully');
+    console.log('Final user data:', {
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      profilePicture: updatedUser.profilePicture
+    });
 
     // Send back updated data (excluding sensitive information)
-    res.json({
+    const responseData = {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
@@ -131,14 +180,19 @@ const updateProfile = async (req, res) => {
       interestedDomains: updatedUser.interestedDomains,
       profilePicture: updatedUser.profilePicture,
       updatedAt: updatedUser.updatedAt
-    });
+    };
+
+    console.log('📤 Sending response:', responseData);
+    res.json(responseData);
 
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error('❌ Error updating profile:', error);
+    console.error('Error stack:', error.stack);
     
     // Handle specific MongoDB errors
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map(err => err.message);
+      console.log('MongoDB Validation Error:', errors);
       return res.status(400).json({ 
         message: 'Validation Error', 
         errors: errors 
@@ -146,6 +200,7 @@ const updateProfile = async (req, res) => {
     }
 
     if (error.code === 11000) {
+      console.log('MongoDB Duplicate Key Error:', error);
       return res.status(400).json({ 
         message: 'Duplicate field value. Please use a different value.' 
       });
