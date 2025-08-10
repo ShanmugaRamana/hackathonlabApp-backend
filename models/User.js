@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
+  role: {
+    type: String,
+    enum: ['Member', 'Admin'], // Defines possible roles
+    default: 'Member',       // Sets the default role for all new users
+  },
   isVerified: {
     type: Boolean,
     default: false,
