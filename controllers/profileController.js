@@ -12,8 +12,22 @@ const updateProfile = async (req, res) => {
       user.name = req.body.name || user.name;
       user.bio = req.body.bio || user.bio;
       user.rollNumber = req.body.rollNumber || user.rollNumber;
-      // The domains are sent as a JSON string from FormData, so we need to parse them
-      user.interestedDomains = req.body.interestedDomains ? JSON.parse(req.body.interestedDomains) : user.interestedDomains;
+      
+      // --- THIS IS THE CORRECTED LOGIC ---
+      // Safely handle the interestedDomains field
+      if (req.body.interestedDomains && req.body.interestedDomains.length > 0) {
+        try {
+          // This will correctly parse the JSON string array sent from the app
+          user.interestedDomains = JSON.parse(req.body.interestedDomains);
+        } catch (e) {
+          console.error("Failed to parse interestedDomains:", e);
+          // If parsing fails, you could decide to keep the old value or clear it
+          // For now, we'll log the error and not update the field to prevent bad data.
+        }
+      } else {
+        // If the field is empty or not provided, you might want to clear it or keep the old value
+        user.interestedDomains = []; // Example: Clearing the domains if none are sent
+      }
 
       // If a new file was uploaded by multer, its buffer will be in req.file
       if (req.file) {
