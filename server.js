@@ -10,6 +10,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const homeRoutes = require('./routes/homeRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const roleRoutes = require('./routes/roleRoutes'); // <-- Import the new role routes
 
 dotenv.config();
 const app = express();
@@ -22,19 +23,20 @@ app.set('views', path.join(__dirname, 'views'));
 // --- Middleware ---
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // To parse form data
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: false }
 }));
 
 // --- Mount Routers ---
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
+app.use('/api/roles', roleRoutes); // <-- Mount the new role routes
 app.use('/dashboard', dashboardRoutes);
 
 const PORT = process.env.PORT || 5000;
