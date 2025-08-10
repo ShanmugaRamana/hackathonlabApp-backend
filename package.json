@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.0",
     "jwt-decode": "^4.0.0",
     "mongoose": "^7.0.3",
+    "multer": "^2.0.2",
     "nodemailer": "^6.9.1",
     "socket.io": "^4.8.1"
   },
