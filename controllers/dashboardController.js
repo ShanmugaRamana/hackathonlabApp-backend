@@ -20,35 +20,27 @@ const logoutAdmin = (req, res) => {
   });
 };
 
-// --- Updated Dashboard Page ---
+// --- Dashboard Page ---
 const getDashboardPage = (req, res) => {
   res.render('dashboard');
 };
 
-// --- NEW FUNCTIONS FOR ROLE REQUESTS ---
-
-// @desc    Get all pending role requests
-// @route   GET /dashboard/roles
+// --- Role Request Functions ---
 const getRoleRequests = async (req, res) => {
   try {
     const requests = await RoleRequest.find({ status: 'Pending' });
-    res.render('roles', { requests }); // Render a new 'roles.ejs' page
+    res.render('roles', { requests });
   } catch (error) {
     res.status(500).send('Server Error');
   }
 };
-
-// @desc    Approve a role request
-// @route   POST /dashboard/roles/approve/:id
 const approveRoleRequest = async (req, res) => {
   try {
     const request = await RoleRequest.findById(req.params.id);
     if (!request) {
       return res.status(404).send('Request not found');
     }
-    // Update the user's role
     await User.findByIdAndUpdate(request.user, { role: request.requestedRole });
-    // Update the request status
     request.status = 'Approved';
     await request.save();
     res.redirect('/dashboard/roles');
@@ -56,19 +48,24 @@ const approveRoleRequest = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
-
-// @desc    Reject a role request
-// @route   POST /dashboard/roles/reject/:id
 const rejectRoleRequest = async (req, res) => {
   try {
     const request = await RoleRequest.findById(req.params.id);
     if (!request) {
       return res.status(404).send('Request not found');
     }
-    // Update the request status
     request.status = 'Rejected';
     await request.save();
     res.redirect('/dashboard/roles');
+  } catch (error) {
+    res.status(500).send('Server Error');
+  }
+};
+
+// --- NEW EVENTS FUNCTION ---
+const getEventsPage = (req, res) => {
+  try {
+    res.render('events');
   } catch (error) {
     res.status(500).send('Server Error');
   }
@@ -82,4 +79,5 @@ module.exports = {
   getRoleRequests,
   approveRoleRequest,
   rejectRoleRequest,
+  getEventsPage, // Export new function
 };
