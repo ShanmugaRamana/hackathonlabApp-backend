@@ -5,13 +5,18 @@ const eventSchema = new mongoose.Schema({
   thumbnail: { type: String, required: true }, // URL from ImageKit
   description: { type: String, required: true },
   registrationDeadline: { type: Date, required: true },
+  // --- UPDATED TIMELINE STRUCTURE ---
   timeline: [{
-    title: String,
     description: String,
+    fromDate: Date,
+    toDate: Date,
+    mode: String, // 'Online' or 'Offline'
   }],
+  // --- UPDATED POINTS STRUCTURE ---
   points: [{
     round: String,
-    value: Number,
+    juniorPoints: Number, // For 1st & 2nd Year
+    seniorPoints: Number, // For 3rd & 4th Year
   }],
   websiteLink: { type: String },
   formLink: { type: String },

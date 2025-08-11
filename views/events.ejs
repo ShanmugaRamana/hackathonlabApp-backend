@@ -47,8 +47,7 @@
                             <label for="description">Event Description</label>
                             <textarea id="description" name="description" rows="4" required></textarea>
                         </div>
-
-                        <!-- --- NEW FIELD --- -->
+                        
                         <div class="form-group">
                             <label for="registrationDeadline">Last Date of Registration</label>
                             <input type="date" id="registrationDeadline" name="registrationDeadline" required>
@@ -91,10 +90,15 @@
         document.getElementById('add-timeline-btn').addEventListener('click', () => {
             const container = document.getElementById('timeline-container');
             const newRow = document.createElement('div');
-            newRow.classList.add('dynamic-row');
+            newRow.classList.add('dynamic-row', 'timeline-row');
             newRow.innerHTML = `
-                <input type="text" name="timeline[][title]" placeholder="Round Title (e.g., Round 1)" required>
-                <input type="text" name="timeline[][description]" placeholder="Description (e.g., 300 points)" required>
+                <input type="text" name="timeline[][description]" placeholder="Description" required class="timeline-desc">
+                <input type="date" name="timeline[][fromDate]" title="From Date" required class="timeline-date">
+                <input type="date" name="timeline[][toDate]" title="To Date" required class="timeline-date">
+                <select name="timeline[][mode]" required class="timeline-mode">
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                </select>
                 <button type="button" class="remove-btn">×</button>
             `;
             container.appendChild(newRow);
@@ -103,16 +107,22 @@
         document.getElementById('add-points-btn').addEventListener('click', () => {
             const container = document.getElementById('points-container');
             const newRow = document.createElement('div');
-            newRow.classList.add('dynamic-row');
+            newRow.classList.add('dynamic-row', 'points-row');
             newRow.innerHTML = `
-                <input type="text" name="points[][round]" placeholder="Round/Field (e.g., Round 1 - 1st/2nd Year)" required>
-                <input type="number" name="points[][value]" placeholder="Points (e.g., 300)" required>
+                <input type="text" name="points[][round]" placeholder="Round Description" required class="points-desc">
+                <div class="points-group">
+                    <label>1st & 2nd Year</label>
+                    <input type="number" name="points[][juniorPoints]" placeholder="Points" required>
+                </div>
+                <div class="points-group">
+                    <label>3rd & 4th Year</label>
+                    <input type="number" name="points[][seniorPoints]" placeholder="Points" required>
+                </div>
                 <button type="button" class="remove-btn">×</button>
             `;
             container.appendChild(newRow);
         });
 
-        // Event delegation for remove buttons
         document.addEventListener('click', (e) => {
             if (e.target && e.target.classList.contains('remove-btn')) {
                 e.target.parentElement.remove();
