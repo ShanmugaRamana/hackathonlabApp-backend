@@ -10,11 +10,34 @@ const createEvent = async (req, res) => {
       eventName,
       description,
       registrationDeadline,
-      timeline,
-      points,
       websiteLink,
       formLink,
     } = req.body;
+
+    // --- NEW LOGIC TO RECONSTRUCT ARRAYS ---
+    const timeline = [];
+    if (req.body.timeline) {
+      for (let i = 0; i < req.body.timeline.length; i++) {
+        timeline.push({
+          description: req.body.timeline[i].description,
+          fromDate: req.body.timeline[i].fromDate,
+          toDate: req.body.timeline[i].toDate,
+          mode: req.body.timeline[i].mode,
+        });
+      }
+    }
+
+    const points = [];
+    if (req.body.points) {
+      for (let i = 0; i < req.body.points.length; i++) {
+        points.push({
+          round: req.body.points[i].round,
+          juniorPoints: req.body.points[i].juniorPoints,
+          seniorPoints: req.body.points[i].seniorPoints,
+        });
+      }
+    }
+    // --- END NEW LOGIC ---
 
     let thumbnailUrl = '';
     if (req.file) {
@@ -31,8 +54,8 @@ const createEvent = async (req, res) => {
       thumbnail: thumbnailUrl,
       description,
       registrationDeadline,
-      timeline,
-      points,
+      timeline, // Use the reconstructed array
+      points,   // Use the reconstructed array
       websiteLink,
       formLink,
     });
