@@ -13,6 +13,7 @@ const homeRoutes = require('./routes/homeRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const eventRoutes = require('./routes/eventRoutes'); // <-- Import new event routes
 
 dotenv.config();
 const app = express();
@@ -51,6 +52,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/events', eventRoutes); // <-- Mount new event routes
 app.use('/dashboard', dashboardRoutes);
 
 // ✅ Add error handling middleware
