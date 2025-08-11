@@ -19,7 +19,7 @@ const createEvent = async (req, res) => {
     let thumbnailUrl = '';
     if (req.file) {
       const response = await imagekit.upload({
-        file: req.file.buffer,
+        file: req.file.buffer.toString('base64'),
         fileName: req.file.originalname,
         folder: 'hackathon-lab-events',
       });
