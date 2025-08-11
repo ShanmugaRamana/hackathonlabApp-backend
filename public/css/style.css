@@ -138,3 +138,97 @@ body {
 .button:hover {
     background-color: #2980b9;
 }
+
+/* Form Styles */
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group input[type="number"],
+.form-group input[type="file"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+/* Dynamic Row Styles */
+.dynamic-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.dynamic-row input {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.remove-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-secondary {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    margin-top: 10px;
+    width: auto;
+    display: inline-block;
+}
+
+.button-secondary:hover {
+    background-color: #bdc3c7;
+}
+
+/* Table Styles for Role Requests */
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.requests-table th, .requests-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ecf0f1;
+    text-align: left;
+}
+
+.requests-table th {
+    font-weight: 700;
+}
+
+.role-tag {
+    background-color: #e0e7ff;
+    color: #4338ca;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.button.approve {
+    background-color: #2ecc71;
+    width: auto;
+}
+.button.approve:hover {
+    background-color: #27ae60;
+}
+.button.reject {
+    background-color: #e74c3c;
+    width: auto;
+}
+.button.reject:hover {
+    background-color: #c0392b;
+}
