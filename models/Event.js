@@ -2,21 +2,25 @@ const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
   eventName: { type: String, required: true },
-  thumbnail: { type: String, required: true }, // URL from ImageKit
+  thumbnail: { type: String, required: true },
   description: { type: String, required: true },
   registrationDeadline: { type: Date, required: true },
-  // --- UPDATED TIMELINE STRUCTURE ---
+  // --- NEW STATUS FIELD ---
+  status: {
+    type: String,
+    enum: ['Open', 'Closed'],
+    default: 'Open',
+  },
   timeline: [{
     description: String,
     fromDate: Date,
     toDate: Date,
-    mode: String, // 'Online' or 'Offline'
+    mode: String,
   }],
-  // --- UPDATED POINTS STRUCTURE ---
   points: [{
     round: String,
-    juniorPoints: Number, // For 1st & 2nd Year
-    seniorPoints: Number, // For 3rd & 4th Year
+    juniorPoints: Number,
+    seniorPoints: Number,
   }],
   websiteLink: { type: String },
   formLink: { type: String },

@@ -6,6 +6,7 @@ const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
+const startEventStatusUpdater = require('./jobs/eventStatusUpdater'); // Import the scheduled task
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');
@@ -17,6 +18,7 @@ const eventRoutes = require('./routes/eventRoutes');
 dotenv.config();
 const app = express();
 connectDB();
+startEventStatusUpdater();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
