@@ -17,7 +17,7 @@ const roleRequestSchema = new mongoose.Schema({
   requestedRole: {
     type: String,
     required: true,
-    enum: ['Lab Lead', 'Staff', 'Intern'],
+    enum: ['Lab Lead', 'Staff', 'Intern', 'Member'], // Added 'Member'
   },
   status: {
     type: String,

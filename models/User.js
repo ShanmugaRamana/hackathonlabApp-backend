@@ -22,16 +22,16 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
+  // --- UPDATED ROLE FIELD ---
   role: {
     type: String,
-    enum: ['Member', 'Admin', 'Lab Lead', 'Staff', 'Intern'],
-    default: 'Member',
+    enum: ['User', 'Member', 'Admin', 'Lab Lead', 'Staff', 'Intern'], // Added 'User'
+    default: 'User',       // Changed the default role to 'User'
   },
   isVerified: {
     type: Boolean,
     default: false,
   },
-  // --- NEW PROFILE FIELDS ---
   profilePicture: {
     type: String,
     default: '',
@@ -48,7 +48,6 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  // --- END NEW FIELDS ---
   emailVerificationToken: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
