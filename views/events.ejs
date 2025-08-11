@@ -28,12 +28,90 @@
         </aside>
         <main class="main-content">
             <header class="header">
-                <h2>Manage Events</h2>
+                <h2>Create New Event</h2>
             </header>
             <section class="content">
-                <p>The event management functionality will be built here.</p>
+                <div class="card">
+                    <form action="/dashboard/events" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="eventName">Event Name</label>
+                            <input type="text" id="eventName" name="eventName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="thumbnail">Thumbnail Image</label>
+                            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Event Description</label>
+                            <textarea id="description" name="description" rows="4" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Event Timeline</label>
+                            <div id="timeline-container">
+                                <!-- Timeline items will be added here -->
+                            </div>
+                            <button type="button" id="add-timeline-btn" class="button-secondary">Add Timeline Item</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Points Structure</label>
+                            <div id="points-container">
+                                <!-- Points items will be added here -->
+                            </div>
+                            <button type="button" id="add-points-btn" class="button-secondary">Add Points Field</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="websiteLink">Event Website Link</label>
+                            <input type="url" id="websiteLink" name="websiteLink">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="formLink">College Google Form Link</label>
+                            <input type="url" id="formLink" name="formLink">
+                        </div>
+
+                        <button type="submit" class="button">Create Event</button>
+                    </form>
+                </div>
             </section>
         </main>
     </div>
+
+    <script>
+        document.getElementById('add-timeline-btn').addEventListener('click', () => {
+            const container = document.getElementById('timeline-container');
+            const newRow = document.createElement('div');
+            newRow.classList.add('dynamic-row');
+            newRow.innerHTML = `
+                <input type="text" name="timeline[][title]" placeholder="Round Title (e.g., Round 1)" required>
+                <input type="text" name="timeline[][description]" placeholder="Description (e.g., 300 points)" required>
+                <button type="button" class="remove-btn">×</button>
+            `;
+            container.appendChild(newRow);
+        });
+
+        document.getElementById('add-points-btn').addEventListener('click', () => {
+            const container = document.getElementById('points-container');
+            const newRow = document.createElement('div');
+            newRow.classList.add('dynamic-row');
+            newRow.innerHTML = `
+                <input type="text" name="points[][round]" placeholder="Round/Field (e.g., Round 1 - 1st/2nd Year)" required>
+                <input type="number" name="points[][value]" placeholder="Points (e.g., 300)" required>
+                <button type="button" class="remove-btn">×</button>
+            `;
+            container.appendChild(newRow);
+        });
+
+        // Event delegation for remove buttons
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('remove-btn')) {
+                e.target.parentElement.remove();
+            }
+        });
+    </script>
 </body>
 </html>
