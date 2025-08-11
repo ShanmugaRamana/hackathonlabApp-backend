@@ -6,70 +6,90 @@ const imagekit = require('../config/imagekit');
 // @access  Admin
 const createEvent = async (req, res) => {
   try {
+    console.log('Request body:', req.body); // Debug log
+    
     const {
       eventName,
       description,
       registrationDeadline,
       websiteLink,
       formLink,
+      timeline: timelineData,
+      points: pointsData
     } = req.body;
 
-    // --- CORRECTED LOGIC TO RECONSTRUCT ARRAYS ---
+    // Process timeline data
     const timeline = [];
-    // The form sends timeline data as an array of objects, which we can use directly.
-    if (req.body.timeline && Array.isArray(req.body.timeline)) {
-        req.body.timeline.forEach(item => {
-            if (item.description && item.fromDate && item.toDate && item.mode) {
-                timeline.push({
-                    description: item.description,
-                    fromDate: item.fromDate,
-                    toDate: item.toDate,
-                    mode: item.mode,
-                });
-            }
-        });
+    if (timelineData && typeof timelineData === 'object') {
+      // If timelineData is an object with numeric keys, convert to array
+      const timelineArray = Array.isArray(timelineData) ? timelineData : Object.values(timelineData);
+      
+      timelineArray.forEach(item => {
+        if (item && item.description && item.fromDate && item.toDate && item.mode) {
+          timeline.push({
+            description: item.description.trim(),
+            fromDate: new Date(item.fromDate),
+            toDate: new Date(item.toDate),
+            mode: item.mode,
+          });
+        }
+      });
     }
 
+    // Process points data
     const points = [];
-    // The form sends points data as an array of objects.
-    if (req.body.points && Array.isArray(req.body.points)) {
-        req.body.points.forEach(item => {
-            if (item.round && item.juniorPoints && item.seniorPoints) {
-                points.push({
-                    round: item.round,
-                    juniorPoints: item.juniorPoints,
-                    seniorPoints: item.seniorPoints,
-                });
-            }
-        });
+    if (pointsData && typeof pointsData === 'object') {
+      // If pointsData is an object with numeric keys, convert to array
+      const pointsArray = Array.isArray(pointsData) ? pointsData : Object.values(pointsData);
+      
+      pointsArray.forEach(item => {
+        if (item && item.round && item.juniorPoints && item.seniorPoints) {
+          points.push({
+            round: item.round.trim(),
+            juniorPoints: parseInt(item.juniorPoints, 10),
+            seniorPoints: parseInt(item.seniorPoints, 10),
+          });
+        }
+      });
     }
-    // --- END CORRECTED LOGIC ---
 
+    console.log('Processed timeline:', timeline); // Debug log
+    console.log('Processed points:', points); // Debug log
+
+    // Handle thumbnail upload
     let thumbnailUrl = '';
     if (req.file) {
-      const response = await imagekit.upload({
-        file: req.file.buffer,
-        fileName: req.file.originalname,
-        folder: 'hackathon-lab-events',
-      });
-      thumbnailUrl = response.url;
+      try {
+        const response = await imagekit.upload({
+          file: req.file.buffer,
+          fileName: req.file.originalname,
+          folder: 'hackathon-lab-events',
+        });
+        thumbnailUrl = response.url;
+      } catch (uploadError) {
+        console.error('Image upload error:', uploadError);
+        return res.status(500).send('Error uploading image');
+      }
     }
 
-    await Event.create({
-      eventName,
+    // Create the event
+    const newEvent = await Event.create({
+      eventName: eventName.trim(),
       thumbnail: thumbnailUrl,
-      description,
-      registrationDeadline,
-      timeline, // Use the reconstructed array
-      points,   // Use the reconstructed array
-      websiteLink,
-      formLink,
+      description: description.trim(),
+      registrationDeadline: new Date(registrationDeadline),
+      timeline,
+      points,
+      websiteLink: websiteLink ? websiteLink.trim() : '',
+      formLink: formLink ? formLink.trim() : '',
     });
+
+    console.log('Created event:', newEvent); // Debug log
 
     res.redirect('/dashboard/events');
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Server Error');
+    console.error('Error creating event:', error);
+    res.status(500).send('Server Error: ' + error.message);
   }
 };
 
@@ -81,8 +101,22 @@ const getEvents = async (req, res) => {
     const events = await Event.find({}).sort({ createdAt: -1 }); // Newest first
     res.json(events);
   } catch (error) {
+    console.error('Error fetching events:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
 
-module.exports = { createEvent, getEvents };
+// @desc    Get all events for dashboard
+// @route   GET /dashboard/events
+// @access  Admin
+const getDashboardEvents = async (req, res) => {
+  try {
+    const events = await Event.find({}).sort({ createdAt: -1 });
+    res.render('events', { events }); // Assuming you have an events.ejs template
+  } catch (error) {
+    console.error('Error fetching dashboard events:', error);
+    res.status(500).send('Server Error');
+  }
+};
+
+module.exports = { createEvent, getEvents, getDashboardEvents };

@@ -6,6 +6,72 @@
     <title>Manage Events</title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .dynamic-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .timeline-row input, .timeline-row select {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .points-row {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .points-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .points-group label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 16px;
+            min-width: 40px;
+        }
+        
+        .remove-btn:hover {
+            background: #c82333;
+        }
+        
+        .button-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -87,21 +153,26 @@
     </div>
 
     <script>
+        let timelineIndex = 0;
+        let pointsIndex = 0;
+
         document.getElementById('add-timeline-btn').addEventListener('click', () => {
             const container = document.getElementById('timeline-container');
             const newRow = document.createElement('div');
             newRow.classList.add('dynamic-row', 'timeline-row');
             newRow.innerHTML = `
-                <input type="text" name="timeline[][description]" placeholder="Description" required class="timeline-desc">
-                <input type="date" name="timeline[][fromDate]" title="From Date" required class="timeline-date">
-                <input type="date" name="timeline[][toDate]" title="To Date" required class="timeline-date">
-                <select name="timeline[][mode]" required class="timeline-mode">
+                <input type="text" name="timeline[${timelineIndex}][description]" placeholder="Description" required class="timeline-desc">
+                <input type="date" name="timeline[${timelineIndex}][fromDate]" title="From Date" required class="timeline-date">
+                <input type="date" name="timeline[${timelineIndex}][toDate]" title="To Date" required class="timeline-date">
+                <select name="timeline[${timelineIndex}][mode]" required class="timeline-mode">
+                    <option value="">Select Mode</option>
                     <option value="Online">Online</option>
                     <option value="Offline">Offline</option>
                 </select>
-                <button type="button" class="remove-btn">×</button>
+                <button type="button" class="remove-btn" onclick="removeRow(this)">×</button>
             `;
             container.appendChild(newRow);
+            timelineIndex++;
         });
 
         document.getElementById('add-points-btn').addEventListener('click', () => {
@@ -109,24 +180,33 @@
             const newRow = document.createElement('div');
             newRow.classList.add('dynamic-row', 'points-row');
             newRow.innerHTML = `
-                <input type="text" name="points[][round]" placeholder="Round Description" required class="points-desc">
-                <div class="points-group">
-                    <label>1st & 2nd Year</label>
-                    <input type="number" name="points[][juniorPoints]" placeholder="Points" required>
+                <input type="text" name="points[${pointsIndex}][round]" placeholder="Round Description" required class="points-desc" style="width: 100%; margin-bottom: 10px;">
+                <div style="display: flex; gap: 20px;">
+                    <div class="points-group">
+                        <label>1st & 2nd Year Points</label>
+                        <input type="number" name="points[${pointsIndex}][juniorPoints]" placeholder="Points" required>
+                    </div>
+                    <div class="points-group">
+                        <label>3rd & 4th Year Points</label>
+                        <input type="number" name="points[${pointsIndex}][seniorPoints]" placeholder="Points" required>
+                    </div>
                 </div>
-                <div class="points-group">
-                    <label>3rd & 4th Year</label>
-                    <input type="number" name="points[][seniorPoints]" placeholder="Points" required>
-                </div>
-                <button type="button" class="remove-btn">×</button>
+                <button type="button" class="remove-btn" onclick="removeRow(this)" style="margin-top: 10px;">×</button>
             `;
             container.appendChild(newRow);
+            pointsIndex++;
         });
 
-        document.addEventListener('click', (e) => {
-            if (e.target && e.target.classList.contains('remove-btn')) {
-                e.target.parentElement.remove();
-            }
+        function removeRow(button) {
+            button.parentElement.remove();
+        }
+
+        // Add initial timeline and points items
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add one timeline item by default
+            document.getElementById('add-timeline-btn').click();
+            // Add one points item by default
+            document.getElementById('add-points-btn').click();
         });
     </script>
 </body>
