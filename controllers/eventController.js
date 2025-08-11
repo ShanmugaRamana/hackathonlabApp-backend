@@ -14,35 +14,41 @@ const createEvent = async (req, res) => {
       formLink,
     } = req.body;
 
-    // --- NEW LOGIC TO RECONSTRUCT ARRAYS ---
+    // --- CORRECTED LOGIC TO RECONSTRUCT ARRAYS ---
     const timeline = [];
-    if (req.body.timeline) {
-      for (let i = 0; i < req.body.timeline.length; i++) {
-        timeline.push({
-          description: req.body.timeline[i].description,
-          fromDate: req.body.timeline[i].fromDate,
-          toDate: req.body.timeline[i].toDate,
-          mode: req.body.timeline[i].mode,
+    // The form sends timeline data as an array of objects, which we can use directly.
+    if (req.body.timeline && Array.isArray(req.body.timeline)) {
+        req.body.timeline.forEach(item => {
+            if (item.description && item.fromDate && item.toDate && item.mode) {
+                timeline.push({
+                    description: item.description,
+                    fromDate: item.fromDate,
+                    toDate: item.toDate,
+                    mode: item.mode,
+                });
+            }
         });
-      }
     }
 
     const points = [];
-    if (req.body.points) {
-      for (let i = 0; i < req.body.points.length; i++) {
-        points.push({
-          round: req.body.points[i].round,
-          juniorPoints: req.body.points[i].juniorPoints,
-          seniorPoints: req.body.points[i].seniorPoints,
+    // The form sends points data as an array of objects.
+    if (req.body.points && Array.isArray(req.body.points)) {
+        req.body.points.forEach(item => {
+            if (item.round && item.juniorPoints && item.seniorPoints) {
+                points.push({
+                    round: item.round,
+                    juniorPoints: item.juniorPoints,
+                    seniorPoints: item.seniorPoints,
+                });
+            }
         });
-      }
     }
-    // --- END NEW LOGIC ---
+    // --- END CORRECTED LOGIC ---
 
     let thumbnailUrl = '';
     if (req.file) {
       const response = await imagekit.upload({
-        file: req.file.buffer.toString('base64'),
+        file: req.file.buffer,
         fileName: req.file.originalname,
         folder: 'hackathon-lab-events',
       });
