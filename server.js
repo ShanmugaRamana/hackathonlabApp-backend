@@ -13,7 +13,7 @@ const homeRoutes = require('./routes/homeRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const profileRoutes = require('./routes/profileRoutes');
-
+const eventRoutes = require('./routes/eventRoutes');
 dotenv.config();
 const app = express();
 connectDB();
@@ -52,6 +52,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/dashboard', dashboardRoutes);
+app.use('/api/events', eventRoutes);
+
 
 // ✅ Add error handling middleware
 app.use((error, req, res, next) => {
