@@ -6,6 +6,7 @@ const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
+const multer = require('multer'); // <-- Add this
 const startEventStatusUpdater = require('./jobs/eventStatusUpdater'); // Import the scheduled task
 const http = require('http');
 const { Server } = require("socket.io");
@@ -109,9 +110,12 @@ app.use((error, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
+});
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
 });
-
 module.exports = app;
