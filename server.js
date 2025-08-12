@@ -7,7 +7,10 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const startEventStatusUpdater = require('./jobs/eventStatusUpdater'); // Import the scheduled task
-
+const http = require('http');
+const { Server } = require("socket.io");
+const User = require('./models/User');
+const Chat = require('./models/Chat');
 // Import route files
 const authRoutes = require('./routes/authRoutes');
 const homeRoutes = require('./routes/homeRoutes');
@@ -15,6 +18,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const chatRoutes = require('./routes/chatRoutes'); // For fetching messages
 dotenv.config();
 const app = express();
 connectDB();
@@ -53,9 +57,36 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/chat', chatRoutes); // Use chat routes
 app.use('/dashboard', dashboardRoutes);
 app.use('/api/events', eventRoutes);
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+io.on('connection', (socket) => {
+  console.log('✅ a user connected:', socket.id);
 
+  socket.on('sendMessage', async ({ text, userId }) => {
+    try {
+      const user = await User.findById(userId);
+      if (user) {
+        const message = new Chat({ text, user: { _id: user._id, name: user.name } });
+        const savedMessage = await message.save();
+        io.emit('receiveMessage', savedMessage); // Broadcast to all clients
+      }
+    } catch (error) {
+      console.error('Socket error:', error);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('❌ user disconnected:', socket.id);
+  });
+});
 
 // ✅ Add error handling middleware
 app.use((error, req, res, next) => {
