@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { protect } = require('../middleware/authMiddleware');
-const { uploadChatImages, uploadChatVideos } = require('../controllers/uploadController');
+const { uploadChatImages, uploadChatVideos, uploadChatDocuments } = require('../controllers/uploadController');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
