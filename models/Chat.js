@@ -8,8 +8,12 @@ const chatSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  // --- NEW FIELD FOR VIDEOS ---
   videos: {
+    type: [String],
+    default: [],
+  },
+  // --- NEW FIELD FOR AUDIO ---
+  audios: {
     type: [String],
     default: [],
   },

@@ -21,7 +21,7 @@ const uploadChatImages = async (req, res) => {
   }
 };
 
-// --- NEW FUNCTION FOR VIDEO UPLOADS ---
+// Handles video uploads
 const uploadChatVideos = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -32,7 +32,7 @@ const uploadChatVideos = async (req, res) => {
         file: file.buffer,
         fileName: file.originalname,
         folder: 'hackathon-lab-chat/videos',
-        resourceType: 'video', // Specify resource type for videos
+        resourceType: 'video',
       })
     );
     const results = await Promise.all(uploadPromises);
@@ -43,4 +43,27 @@ const uploadChatVideos = async (req, res) => {
   }
 };
 
-module.exports = { uploadChatImages, uploadChatVideos };
+// --- NEW FUNCTION FOR AUDIO UPLOADS ---
+const uploadChatAudios = async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded.' });
+    }
+    const uploadPromises = req.files.map(file => 
+      imagekit.upload({
+        file: file.buffer,
+        fileName: file.originalname,
+        folder: 'hackathon-lab-chat/audios',
+        resourceType: 'raw', // Use 'raw' or 'auto' for audio files
+      })
+    );
+    const results = await Promise.all(uploadPromises);
+    const audioUrls = results.map(result => result.url);
+    res.status(200).json({ audioUrls });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during file upload.' });
+  }
+};
+
+
+module.exports = { uploadChatImages, uploadChatVideos, uploadChatAudios };

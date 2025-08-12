@@ -64,19 +64,20 @@ io.on('connection', (socket) => {
   console.log('✅ a user connected:', socket.id);
 
   // --- UPDATED sendMessage HANDLER ---
-  socket.on('sendMessage', async ({ text, userId, images, videos }) => { // Add videos
+  socket.on('sendMessage', async ({ text, userId, images, videos, audios }) => { // Add audios
     try {
       const user = await User.findById(userId);
       if (user) {
-        // A message must have text, images, or videos
-        if (!text.trim() && (!images || images.length === 0) && (!videos || videos.length === 0)) {
+        // A message must have text, images, videos, or audios
+        if (!text.trim() && (!images || images.length === 0) && (!videos || videos.length === 0) && (!audios || audios.length === 0)) {
           return; 
         }
 
         const message = new Chat({ 
           text, 
           images,
-          videos, // Save the array of video URLs
+          videos,
+          audios, // Save the array of audio URLs
           user: { _id: user._id, name: user.name } 
         });
 
