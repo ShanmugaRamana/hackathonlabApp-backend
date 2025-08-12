@@ -135,12 +135,20 @@ io.on('connection', (socket) => {
   socket.join('general_chat');
 
   // Handle incoming messages
-  socket.on('sendMessage', async ({ text, userId, tempId }) => {
+  socket.on('sendMessage', async ({ text, userId, tempId, channel = 'general' }) => {
     try {
       // Validate input
       if (!text || !text.trim()) {
         socket.emit('messageError', { 
           message: 'Message text is required',
+          tempId 
+        });
+        return;
+      }
+
+      if (text.trim().length > 1000) {
+        socket.emit('messageError', { 
+          message: 'Message too long. Maximum 1000 characters allowed.',
           tempId 
         });
         return;
@@ -176,6 +184,7 @@ io.on('connection', (socket) => {
       // Create and save message
       const messageData = {
         text: text.trim(),
+        channel,
         user: { 
           _id: user._id, 
           name: user.name 
