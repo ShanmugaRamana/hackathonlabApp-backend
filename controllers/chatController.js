@@ -1,4 +1,3 @@
-// controllers/chatController.js
 const Chat = require('../models/Chat');
 const User = require('../models/User');
 
