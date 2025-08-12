@@ -3,7 +3,12 @@ const mongoose = require('mongoose');
 const chatSchema = new mongoose.Schema({
   text: {
     type: String,
-    required: true,
+    // Text is no longer required, as a message can be just an image
+  },
+  // --- NEW FIELD FOR IMAGES ---
+  images: {
+    type: [String], // An array of image URLs
+    default: [],
   },
   user: {
     _id: {

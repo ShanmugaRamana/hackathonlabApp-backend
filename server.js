@@ -19,7 +19,7 @@ const roleRoutes = require('./routes/roleRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-
+const uploadRoutes = require('./routes/uploadRoutes'); // <-- Import new upload routes
 dotenv.config();
 const app = express();
 connectDB();
@@ -48,6 +48,7 @@ app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/upload', uploadRoutes); // <-- Mount new upload routes
 app.use('/dashboard', dashboardRoutes);
 
 // --- Socket.io Real-time Setup ---
@@ -62,11 +63,22 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('✅ a user connected:', socket.id);
 
-  socket.on('sendMessage', async ({ text, userId }) => {
+  // --- UPDATED sendMessage HANDLER ---
+  socket.on('sendMessage', async ({ text, userId, images }) => {
     try {
       const user = await User.findById(userId);
       if (user) {
-        const message = new Chat({ text, user: { _id: user._id, name: user.name } });
+        // A message must have either text or at least one image
+        if (!text.trim() && (!images || images.length === 0)) {
+          return; // Do not save or send empty messages
+        }
+
+        const message = new Chat({ 
+          text, 
+          images, // Save the array of image URLs
+          user: { _id: user._id, name: user.name } 
+        });
+
         const savedMessage = await message.save();
         io.emit('receiveMessage', savedMessage);
       }
