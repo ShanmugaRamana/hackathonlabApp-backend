@@ -12,11 +12,11 @@ const chatSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  // --- NEW FIELD FOR AUDIO ---
-  audios: {
-    type: [String],
-    default: [],
-  },
+  // --- NEW FIELD FOR DOCUMENTS ---
+  documents: [{
+    url: String,
+    name: String,
+  }],
   user: {
     _id: {
       type: mongoose.Schema.Types.ObjectId,
