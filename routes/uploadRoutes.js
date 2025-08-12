@@ -2,12 +2,16 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { protect } = require('../middleware/authMiddleware');
-const { uploadChatImages } = require('../controllers/uploadController');
+const { uploadChatImages, uploadChatVideos } = require('../controllers/uploadController');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// This route will handle up to 3 images with the field name 'images'
+// Handles up to 3 images
 router.post('/chat-images', protect, upload.array('images', 3), uploadChatImages);
+
+// --- NEW ROUTE FOR VIDEOS ---
+// Handles up to 3 videos
+router.post('/chat-videos', protect, upload.array('videos', 3), uploadChatVideos);
 
 module.exports = router;

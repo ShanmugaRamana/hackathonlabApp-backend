@@ -64,18 +64,19 @@ io.on('connection', (socket) => {
   console.log('✅ a user connected:', socket.id);
 
   // --- UPDATED sendMessage HANDLER ---
-  socket.on('sendMessage', async ({ text, userId, images }) => {
+  socket.on('sendMessage', async ({ text, userId, images, videos }) => { // Add videos
     try {
       const user = await User.findById(userId);
       if (user) {
-        // A message must have either text or at least one image
-        if (!text.trim() && (!images || images.length === 0)) {
-          return; // Do not save or send empty messages
+        // A message must have text, images, or videos
+        if (!text.trim() && (!images || images.length === 0) && (!videos || videos.length === 0)) {
+          return; 
         }
 
         const message = new Chat({ 
           text, 
-          images, // Save the array of image URLs
+          images,
+          videos, // Save the array of video URLs
           user: { _id: user._id, name: user.name } 
         });
 
