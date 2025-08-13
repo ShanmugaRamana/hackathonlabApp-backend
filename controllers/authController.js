@@ -3,6 +3,13 @@ const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const jwt = require('jsonwebtoken');
 
+// --- Helper function to generate a JWT ---
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+};
+
 // @desc    Register/Signup a new user and send verification email
 const signupUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -19,7 +26,6 @@ const signupUser = async (req, res) => {
       emailVerificationToken: crypto.createHash('sha256').update(verificationToken).digest('hex'),
     });
     if (user) {
-      // Use the new environment variable for the live URL
       const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email/${verificationToken}`;
       const message = `
         <h1>Account Verification</h1>
@@ -50,6 +56,45 @@ const signupUser = async (req, res) => {
   }
 };
 
+// @desc    Verify user's email
+const verifyEmail = async (req, res) => {
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+    try {
+        const user = await User.findOne({ emailVerificationToken: hashedToken });
+        if (!user) {
+            return res.status(400).send('<h1>Invalid or expired verification link.</h1>');
+        }
+        user.isVerified = true;
+        user.emailVerificationToken = undefined;
+        await user.save();
+        res.status(200).send('<h1>Email Verified Successfully!</h1><p>You can now close this tab and log in to the app.</p>');
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Authenticate/Login user & get token
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email }).select('+password');
+    if (!user || !(await user.matchPassword(password))) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Please verify your email before logging in.' });
+    }
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Forgot password
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -61,9 +106,7 @@ const forgotPassword = async (req, res) => {
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    // Use the new environment variable for the live URL
     const resetUrl = `${process.env.BACKEND_URL}/api/auth/reset-password/${resetToken}`;
-
     const message = `
       <h1>Password Reset Request</h1>
       <p>Please click the link below to reset your password:</p>
@@ -87,45 +130,9 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-
-// ... (The rest of the file: verifyEmail, loginUser, showResetPasswordForm, resetPassword, and exports remain the same) ...
-// ... (Make sure to include the rest of the functions from the previous version) ...
-const verifyEmail = async (req, res) => {
-    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
-    try {
-        const user = await User.findOne({ emailVerificationToken: hashedToken });
-        if (!user) {
-            return res.status(400).send('<h1>Invalid or expired verification link.</h1>');
-        }
-        user.isVerified = true;
-        user.emailVerificationToken = undefined;
-        await user.save();
-        res.status(200).send('<h1>Email Verified Successfully!</h1><p>You can now close this tab and log in to the app.</p>');
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email }).select('+password');
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-    if (!user.isVerified) {
-      return res.status(403).json({ message: 'Please verify your email before logging in.' });
-    }
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' }),
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// @desc    Show reset password form
 const showResetPasswordForm = (req, res) => {
+    const token = req.params.token;
     res.setHeader('Content-Type', 'text/html');
     res.send(`
         <!DOCTYPE html>
@@ -199,6 +206,8 @@ const showResetPasswordForm = (req, res) => {
         </html>
     `);
 };
+
+// @desc    Reset password
 const resetPassword = async (req, res) => {
   const resetPasswordToken = crypto
     .createHash('sha256')
@@ -221,6 +230,32 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Change user password while logged in
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Incorrect current password' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   signupUser,
   verifyEmail,
@@ -228,4 +263,5 @@ module.exports = {
   forgotPassword,
   showResetPasswordForm,
   resetPassword,
+  changePassword,
 };

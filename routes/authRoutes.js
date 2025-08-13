@@ -6,21 +6,21 @@ const {
   verifyEmail,
   loginUser,
   forgotPassword,
-  showResetPasswordForm, // Import new function
+  showResetPasswordForm,
   resetPassword,
+  changePassword,
 } = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware');
 
+// Public routes
 router.post('/signup', signupUser);
 router.get('/verify-email/:token', verifyEmail);
 router.post('/login', loginUser);
 router.post('/forgot-password', forgotPassword);
-
-// --- UPDATED PASSWORD RESET ROUTES ---
-
-// When a user clicks the link in the email, it's a GET request
 router.get('/reset-password/:token', showResetPasswordForm);
-
-// When the user submits the form on the new page, it's a POST request
 router.post('/reset-password/:token', resetPassword);
+
+// Protected route for logged-in users
+router.put('/change-password', protect, changePassword);
 
 module.exports = router;
