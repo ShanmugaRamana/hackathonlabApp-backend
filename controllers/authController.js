@@ -255,7 +255,37 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+const deleteAccount = async (req, res) => {
+  const { password } = req.body;
+  const userId = req.user._id;
 
+  try {
+    const user = await User.findById(userId).select('+password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify the password to confirm deletion
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Incorrect password' });
+    }
+
+    // --- DELETE USER DATA ---
+    // 1. Delete user's chat messages
+    await Chat.deleteMany({ 'user._id': userId });
+    // 2. Delete user's role requests
+    await RoleRequest.deleteMany({ user: userId });
+    // 3. Delete the user account itself
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 module.exports = {
   signupUser,
   verifyEmail,
@@ -264,4 +294,5 @@ module.exports = {
   showResetPasswordForm,
   resetPassword,
   changePassword,
+  deleteAccount,
 };
