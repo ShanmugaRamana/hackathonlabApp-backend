@@ -23,6 +23,6 @@ router.post('/reset-password/:token', resetPassword);
 
 // Protected route for logged-in users
 router.put('/change-password', protect, changePassword);
-router.delete('/delete-account', protect, deleteAccount);
+router.post('/delete-account', protect, deleteAccount);
 
 module.exports = router;
