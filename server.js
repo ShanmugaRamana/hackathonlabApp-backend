@@ -19,6 +19,8 @@ const roleRoutes = require('./routes/roleRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const admin = require('./config/firebase'); // Import Firebase Admin
+const userRoutes = require('./routes/userRoutes'); // Import new user routes
 const uploadRoutes = require('./routes/uploadRoutes'); // <-- Import new upload routes
 dotenv.config();
 const app = express();
@@ -48,6 +50,7 @@ app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/users', userRoutes); // Mount new user routes
 app.use('/api/upload', uploadRoutes); // <-- Mount new upload routes
 app.use('/dashboard', dashboardRoutes);
 
@@ -62,29 +65,49 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   // --- UPDATED sendMessage HANDLER ---
-  socket.on('sendMessage', async ({ text, userId, images, videos, documents }) => { // Add documents
+    socket.on('sendMessage', async ({ text, userId, images, videos, documents }) => {
     try {
       const user = await User.findById(userId);
       if (user) {
-        if (!text.trim() && (!images || images.length === 0) && (!videos || videos.length === 0) && (!documents || documents.length === 0)) {
-          return; 
-        }
-
         const message = new Chat({ 
           text, 
           images,
           videos,
+          documents,
           user: { _id: user._id, name: user.name } 
         });
 
         const savedMessage = await message.save();
         io.emit('receiveMessage', savedMessage);
+
+        // --- SEND NOTIFICATION LOGIC ---
+        // Find all users who should receive a notification (everyone except the sender)
+        const recipients = await User.find({ _id: { $ne: userId }, fcmToken: { $exists: true, $ne: null } });
+        const tokens = recipients.map(r => r.fcmToken);
+
+        if (tokens.length > 0) {
+          const notificationMessage = {
+            notification: {
+              title: user.name,
+              body: text || (images && images.length > 0 ? 'Sent an image' : 'Sent a file'),
+            },
+            tokens: tokens,
+          };
+          
+          // Send the notification
+          admin.messaging().sendMulticast(notificationMessage)
+            .then((response) => {
+              console.log('Successfully sent message:', response.successCount, 'successes');
+            })
+            .catch((error) => {
+              console.log('Error sending message:', error);
+            });
+        }
       }
     } catch (error) {
       console.error('Socket error:', error);
     }
   });
-
   socket.on('disconnect', () => {
     console.log('❌ user disconnected:', socket.id);
   });
