@@ -2,7 +2,8 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const jwt = require('jsonwebtoken');
-
+const Chat = require('../models/Chat');
+const RoleRequest = require('../models/RoleRequest');
 // --- Helper function to generate a JWT ---
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
