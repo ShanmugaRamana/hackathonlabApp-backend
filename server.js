@@ -74,7 +74,6 @@ io.on('connection', (socket) => {
           text, 
           images,
           videos,
-          documents, // Save the array of document objects
           user: { _id: user._id, name: user.name } 
         });
 

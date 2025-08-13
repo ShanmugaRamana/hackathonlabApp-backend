@@ -14,6 +14,5 @@ router.post('/chat-images', protect, upload.array('images', 3), uploadChatImages
 router.post('/chat-videos', protect, upload.array('videos', 3), uploadChatVideos);
 
 // The audio route has been removed.
-router.post('/chat-documents', protect, upload.array('documents', 3), uploadChatDocuments);
 
 module.exports = router;
