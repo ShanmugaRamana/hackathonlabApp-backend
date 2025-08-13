@@ -293,6 +293,6 @@ module.exports = {
   forgotPassword,
   showResetPasswordForm,
   resetPassword,
-  changePassword,
   deleteAccount,
+  changePassword,
 };
