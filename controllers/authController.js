@@ -273,11 +273,17 @@ const deleteAccount = async (req, res) => {
       return res.status(401).json({ message: 'Incorrect password' });
     }
 
-    // --- DELETE USER DATA ---
-    // 1. Delete user's chat messages
-    await Chat.deleteMany({ 'user._id': userId });
+    // --- ANONYMIZE AND DELETE USER DATA ---
+    
+    // 1. Anonymize the user's chat messages instead of deleting them
+    await Chat.updateMany(
+      { 'user._id': userId },
+      { $set: { 'user.name': 'Deleted User' } }
+    );
+
     // 2. Delete user's role requests
     await RoleRequest.deleteMany({ user: userId });
+    
     // 3. Delete the user account itself
     await User.findByIdAndDelete(userId);
 
