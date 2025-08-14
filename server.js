@@ -116,18 +116,20 @@ io.on('connection', (socket) => {
     }
   });
 
-  // --- NEW HANDLER FOR UNSEND MESSAGE ---
+  // --- UPDATED HANDLER FOR UNSEND MESSAGE ---
   socket.on('unsendMessage', async ({ messageId, userId }) => {
     try {
       const message = await Chat.findById(messageId);
 
-      // Security check: Only the original sender can unsend the message
       if (message && message.user._id.toString() === userId) {
+        // ✅ THIS IS THE FIX: Save the original text for monitoring
+        message.originalText = message.text;
+        
         // Update the message content
         message.text = 'This message was unsent';
         message.images = [];
         message.videos = [];
-        message.documents = []; // Also clear documents
+        message.documents = [];
         message.isUnsent = true;
         
         const updatedMessage = await message.save();

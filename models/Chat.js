@@ -12,10 +12,14 @@ const chatSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  // --- NEW FIELD FOR UNSEND ---
   isUnsent: {
     type: Boolean,
     default: false,
+  },
+  // --- NEW FIELD FOR MONITORING ---
+  originalText: {
+    type: String,
+    default: null, // Will only be populated if a message is unsent
   },
   user: {
     _id: {
