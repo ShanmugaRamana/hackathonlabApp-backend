@@ -12,7 +12,11 @@ const chatSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  
+  // --- NEW FIELD FOR UNSEND ---
+  isUnsent: {
+    type: Boolean,
+    default: false,
+  },
   user: {
     _id: {
       type: mongoose.Schema.Types.ObjectId,

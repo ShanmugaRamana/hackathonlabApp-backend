@@ -1,3 +1,4 @@
+// ===== FIXED server.js =====
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
@@ -5,11 +6,13 @@ const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
+const multer = require('multer');
+const startEventStatusUpdater = require('./jobs/eventStatusUpdater');
 const http = require('http');
 const { Server } = require("socket.io");
 const User = require('./models/User');
 const Chat = require('./models/Chat');
-const startEventStatusUpdater = require('./jobs/eventStatusUpdater');
+const admin = require('./config/firebase'); // Assuming firebase config exists
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');
@@ -19,9 +22,8 @@ const roleRoutes = require('./routes/roleRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-const admin = require('./config/firebase'); // Import Firebase Admin
-const userRoutes = require('./routes/userRoutes'); // Import new user routes
-const uploadRoutes = require('./routes/uploadRoutes'); // <-- Import new upload routes
+const userRoutes = require('./routes/userRoutes');
+
 dotenv.config();
 const app = express();
 connectDB();
@@ -30,7 +32,13 @@ startEventStatusUpdater();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(session({
@@ -41,20 +49,18 @@ app.use(session({
 }));
 
 app.use('/api/profile', profileRoutes);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Mount API Routers
+// Mount Routers
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes);
-app.use('/api/events', eventRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/users', userRoutes); // Mount new user routes
-app.use('/api/upload', uploadRoutes); // <-- Mount new upload routes
 app.use('/dashboard', dashboardRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/users', userRoutes);
 
-// --- Socket.io Real-time Setup ---
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -64,8 +70,9 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  // --- UPDATED sendMessage HANDLER ---
-    socket.on('sendMessage', async ({ text, userId, images, videos, documents }) => {
+  console.log('✅ a user connected:', socket.id);
+
+  socket.on('sendMessage', async ({ text, userId, images, videos, documents }) => {
     try {
       const user = await User.findById(userId);
       if (user) {
@@ -80,7 +87,6 @@ io.on('connection', (socket) => {
         const savedMessage = await message.save();
         io.emit('receiveMessage', savedMessage);
 
-        // --- UPDATED NOTIFICATION LOGIC ---
         const recipients = await User.find({ _id: { $ne: userId }, fcmToken: { $exists: true, $ne: null } });
         const tokens = recipients.map(r => r.fcmToken);
 
@@ -90,7 +96,6 @@ io.on('connection', (socket) => {
               title: user.name,
               body: text || (images && images.length > 0 ? 'Sent an image' : 'Sent a file'),
             },
-            // Add a data payload with the sender's ID
             data: {
               senderId: userId.toString(),
             },
@@ -111,12 +116,59 @@ io.on('connection', (socket) => {
     }
   });
 
+  // --- NEW HANDLER FOR UNSEND MESSAGE ---
+  socket.on('unsendMessage', async ({ messageId, userId }) => {
+    try {
+      const message = await Chat.findById(messageId);
+
+      // Security check: Only the original sender can unsend the message
+      if (message && message.user._id.toString() === userId) {
+        // Update the message content
+        message.text = 'This message was unsent';
+        message.images = [];
+        message.videos = [];
+        message.documents = []; // Also clear documents
+        message.isUnsent = true;
+        
+        const updatedMessage = await message.save();
+
+        // Broadcast the updated message to all clients
+        io.emit('messageUpdated', updatedMessage);
+      }
+    } catch (error) {
+      console.error('Unsend message error:', error);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('❌ user disconnected:', socket.id);
   });
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.use((error, req, res, next) => {
+  console.error('🚨 Global Error Handler:', error);
+  
+  if (error instanceof multer.MulterError) {
+    console.log('📁 Multer Error:', error.code, error.message);
+    
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'File too large. Maximum size is 5MB.' });
+    }
+    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ message: 'Unexpected file field. Use "profilePicture" field name.' });
+    }
+    
+    return res.status(400).json({ message: `File upload error: ${error.message}` });
+  }
+  
+  res.status(500).json({ message: 'Internal server error' });
 });
+
+const PORT = process.env.PORT || 5000;
+// Use server.listen() for socket.io
+server.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
+});
+
+module.exports = app;
