@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
         const savedMessage = await message.save();
         io.emit('receiveMessage', savedMessage);
 
-        // --- SEND NOTIFICATION LOGIC ---
+        // --- UPDATED NOTIFICATION LOGIC ---
         const recipients = await User.find({ _id: { $ne: userId }, fcmToken: { $exists: true, $ne: null } });
         const tokens = recipients.map(r => r.fcmToken);
 
@@ -90,11 +90,13 @@ io.on('connection', (socket) => {
               title: user.name,
               body: text || (images && images.length > 0 ? 'Sent an image' : 'Sent a file'),
             },
+            // Add a data payload with the sender's ID
+            data: {
+              senderId: userId.toString(),
+            },
             tokens: tokens,
           };
           
-          // --- THIS IS THE CORRECTED LINE ---
-          // Use sendEachForMulticast instead of the old sendMulticast
           admin.messaging().sendEachForMulticast(notificationMessage)
             .then((response) => {
               console.log('Successfully sent message:', response.successCount, 'successes');
@@ -108,6 +110,7 @@ io.on('connection', (socket) => {
       console.error('Socket error:', error);
     }
   });
+
   socket.on('disconnect', () => {
     console.log('❌ user disconnected:', socket.id);
   });
