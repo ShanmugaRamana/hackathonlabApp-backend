@@ -81,7 +81,6 @@ io.on('connection', (socket) => {
         io.emit('receiveMessage', savedMessage);
 
         // --- SEND NOTIFICATION LOGIC ---
-        // Find all users who should receive a notification (everyone except the sender)
         const recipients = await User.find({ _id: { $ne: userId }, fcmToken: { $exists: true, $ne: null } });
         const tokens = recipients.map(r => r.fcmToken);
 
@@ -94,8 +93,9 @@ io.on('connection', (socket) => {
             tokens: tokens,
           };
           
-          // Send the notification
-          admin.messaging().sendMulticast(notificationMessage)
+          // --- THIS IS THE CORRECTED LINE ---
+          // Use sendEachForMulticast instead of the old sendMulticast
+          admin.messaging().sendEachForMulticast(notificationMessage)
             .then((response) => {
               console.log('Successfully sent message:', response.successCount, 'successes');
             })
