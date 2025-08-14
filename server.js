@@ -72,7 +72,8 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('✅ a user connected:', socket.id);
 
-  socket.on('sendMessage', async ({ text, userId, images, videos, documents }) => {
+  // --- UPDATED sendMessage HANDLER with replyTo ---
+  socket.on('sendMessage', async ({ text, userId, images, videos, documents, replyTo }) => {
     try {
       const user = await User.findById(userId);
       if (user) {
@@ -81,6 +82,7 @@ io.on('connection', (socket) => {
           images,
           videos,
           documents,
+          replyTo, // Add the reply information
           user: { _id: user._id, name: user.name } 
         });
 
@@ -116,7 +118,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // --- UPDATED HANDLER FOR UNSEND MESSAGE ---
   socket.on('unsendMessage', async ({ messageId, userId }) => {
     try {
       const message = await Chat.findById(messageId);
@@ -133,8 +134,6 @@ io.on('connection', (socket) => {
         message.isUnsent = true;
         
         const updatedMessage = await message.save();
-
-        // Broadcast the updated message to all clients
         io.emit('messageUpdated', updatedMessage);
       }
     } catch (error) {
@@ -167,7 +166,6 @@ app.use((error, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-// Use server.listen() for socket.io
 server.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📡 API Base URL: http://localhost:${PORT}/api`);

@@ -16,10 +16,22 @@ const chatSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  // --- NEW FIELD FOR MONITORING ---
   originalText: {
     type: String,
-    default: null, // Will only be populated if a message is unsent
+    default: null,
+  },
+  // --- NEW FIELD FOR REPLIES ---
+  replyTo: {
+    messageId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Chat',
+    },
+    textSnippet: {
+      type: String,
+    },
+    authorName: {
+      type: String,
+    },
   },
   user: {
     _id: {
