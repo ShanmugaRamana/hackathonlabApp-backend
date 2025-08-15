@@ -293,6 +293,46 @@ const deleteAccount = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+const resendVerificationEmail = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    // Only proceed if the user exists and is not yet verified
+    if (user && !user.isVerified) {
+      // Create a new verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      user.emailVerificationToken = crypto
+        .createHash('sha256')
+        .update(verificationToken)
+        .digest('hex');
+      
+      await user.save();
+
+      // Send the new verification email
+      const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email/${verificationToken}`;
+      const message = `
+        <h1>Account Verification</h1>
+        <p>Please click the link below to verify your email address:</p>
+        <a href="${verificationUrl}" clicktracking=off>${verificationUrl}</a>
+      `;
+      
+      await sendEmail({
+        email: user.email,
+        subject: 'Hackathon Lab - New Email Verification',
+        message,
+      });
+    }
+    
+    // Always send a success response to prevent email enumeration
+    res.json({ message: 'If an account with that email exists, a new verification link has been sent.' });
+
+  } catch (error) {
+    console.error('Error resending verification email:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 module.exports = {
   signupUser,
   verifyEmail,
@@ -302,4 +342,5 @@ module.exports = {
   resetPassword,
   deleteAccount,
   changePassword,
+  resendVerificationEmail,
 };

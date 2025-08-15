@@ -10,6 +10,7 @@ const {
   resetPassword,
   changePassword,
   deleteAccount,
+  resendVerificationEmail,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -20,6 +21,7 @@ router.post('/login', loginUser);
 router.post('/forgot-password', forgotPassword);
 router.get('/reset-password/:token', showResetPasswordForm);
 router.post('/reset-password/:token', resetPassword);
+router.post('/resend-verification', resendVerificationEmail);
 
 // Protected route for logged-in users
 router.put('/change-password', protect, changePassword);
