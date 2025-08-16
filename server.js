@@ -23,6 +23,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
+const uploadRoutes = require('./routes/uploadRoutes'); // <-- THIS LINE WAS MISSING
 
 dotenv.config();
 const app = express();
@@ -60,6 +61,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/upload', uploadRoutes); // <-- THIS LINE WAS MISSING
 
 const server = http.createServer(app);
 const io = new Server(server, {
