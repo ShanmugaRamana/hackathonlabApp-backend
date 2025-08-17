@@ -13,6 +13,7 @@ const { Server } = require("socket.io");
 const User = require('./models/User');
 const Chat = require('./models/Chat');
 const admin = require('./config/firebase'); // Assuming firebase config exists
+const imagekit = require('./config/imagekit'); // ✅ add this
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');
