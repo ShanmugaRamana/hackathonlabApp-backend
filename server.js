@@ -79,13 +79,16 @@ io.on('connection', (socket) => {
     try {
       const user = await User.findById(userId);
       if (user) {
+        if (!text.trim() && (!images || images.length === 0) && (!videos || videos.length === 0)) {
+          return; 
+        }
         const message = new Chat({ 
           text, 
           images,
           videos,
           documents,
           replyTo, // Add the reply information
-          user: { _id: user._id, name: user.name } 
+          user: { _id: user._id, name: user.name, profilePicture: user.profilePicture } 
         });
 
         const savedMessage = await message.save();
