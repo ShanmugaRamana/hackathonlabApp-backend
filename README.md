@@ -27,7 +27,8 @@ Welcome to the **backend server** for the HackathonLab Community App. This serve
   <tr>
     <td valign="top" width="40%">
 
-<h2>🔑 Key Features</h2>
+<h2><div align="center">
+Key Features</div></h2>
 
 - **User Authentication**  
 - **Real-time Chat**  
@@ -40,7 +41,8 @@ Welcome to the **backend server** for the HackathonLab Community App. This serve
 </td>
 <td valign="top" width="60%" style="border-left:1px solid #ccc; padding-left:20px;">
 
-<h2>📡 API Endpoints Overview</h2>
+<h2><div align="center">
+API Endpoints Overview</div></h2>
 
 - `POST /api/auth` — User login, registration, and email verification  
 - `GET /api/users` — Retrieve user profiles  
@@ -49,7 +51,7 @@ Welcome to the **backend server** for the HackathonLab Community App. This serve
 - `POST /api/roles` — Request elevated roles  
 - `POST /api/upload` — File and image uploads  
 - `/dashboard` — Admin dashboard interface  
-
+<br>
 </td>
   </tr>
 </table>
