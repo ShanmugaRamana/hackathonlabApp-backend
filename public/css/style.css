@@ -444,3 +444,6 @@ option {
     background-color: #fff;
     color: #333;
 }
+#points-container input[type="text"] {
+    margin-top: 10px;
+}
