@@ -428,9 +428,18 @@ body {
     color: var(--select-arrow-color);
     pointer-events: none; /* Allows clicks to pass through to the select */
 }
-
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    height: 45px; /* Set a fixed height for alignment */
+}
 /* Styling for the dropdown options */
-.mode-select option {
+option {
     padding: 10px;
     background-color: #fff;
     color: #333;

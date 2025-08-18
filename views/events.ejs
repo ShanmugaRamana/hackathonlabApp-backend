@@ -114,8 +114,10 @@
             const newRow = document.createElement('div');
             newRow.classList.add('dynamic-row', 'points-row');
             newRow.innerHTML = `
+                <div style="display: flex; gap: 20px;">
                 <label>Description</label>
                 <input type="text" name="points[${pointsIndex}][round]" placeholder="Round Description" required class="points-desc" style="width: 100%; margin-bottom: 10px;">
+                </div>
                 <div style="display: flex; gap: 20px;">
                     <div class="points-group">
                         <label>1st & 2nd Year Points</label>
