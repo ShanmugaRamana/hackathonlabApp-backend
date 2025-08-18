@@ -232,3 +232,60 @@ body {
 .button.reject:hover {
     background-color: #c0392b;
 }
+/* Add to /css/style.css */
+
+.stat-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stat-icon i {
+    font-size: 24px;
+}
+
+.stat-info .stat-title {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 5px 0;
+}
+
+.stat-info .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.card-placeholder {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}

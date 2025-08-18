@@ -6,6 +6,8 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Adding Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -20,7 +22,6 @@
                     <span class="icon">🛡️</span>
                     Role Requests
                 </a>
-                <!-- --- NEW EVENTS BUTTON --- -->
                 <a href="/dashboard/events" class="menu-item">
                     <span class="icon">📅</span>
                     Create Events
@@ -30,14 +31,57 @@
         <main class="main-content">
             <header class="header">
                 <h2>Dashboard Overview</h2>
+                <p>Welcome back, Admin!</p>
             </header>
+            
+            <!-- ===== REDESIGNED CONTENT SECTION ===== -->
             <section class="content">
-                <div class="card">
-                    <h3>Role Management</h3>
-                    <p>View and approve role requests from users.</p>
-                    <a href="/dashboard/roles" class="button">View Requests</a>
+                <div class="stat-cards-container">
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #eaf5ff;">
+                            <i class="fas fa-users" style="color: #3b82f6;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-title">Total Users</p>
+                            <!-- This value will be dynamic later -->
+                            <h3 class="stat-value">150</h3> 
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #fff7e6;">
+                            <i class="fas fa-user-clock" style="color: #f97316;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-title">Pending Requests</p>
+                             <!-- This value will be dynamic later -->
+                            <h3 class="stat-value">8</h3>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #e6f7f2;">
+                            <i class="fas fa-calendar-check" style="color: #10b981;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-title">Active Events</p>
+                             <!-- This value will be dynamic later -->
+                            <h3 class="stat-value">4</h3>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- You can add more sections here later, like recent activity or charts -->
+                <div class="card-placeholder">
+                    <h3>Recent Activity</h3>
+                    <p>Activity feed will be implemented here.</p>
+                </div>
+
             </section>
+            <!-- ===================================== -->
+
         </main>
     </div>
 </body>
