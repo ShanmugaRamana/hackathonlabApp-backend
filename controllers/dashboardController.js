@@ -21,8 +21,31 @@ const logoutAdmin = (req, res) => {
 };
 
 // --- Dashboard Page ---
-const getDashboardPage = (req, res) => {
-  res.render('dashboard');
+const getDashboardPage = async (req, res) => {
+  try {
+    // Fetch all counts in parallel for better performance
+    const [userCount, pendingRequestCount, activeEventCount] = await Promise.all([
+      User.countDocuments(),
+      RoleRequest.countDocuments({ status: 'Pending' }),
+      Event.countDocuments({ status: 'Open' }) // Assuming 'Open' means active
+    ]);
+
+    // Render the dashboard and pass the data to it
+    res.render('dashboard', {
+      totalUsers: userCount,
+      pendingRequests: pendingRequestCount,
+      activeEvents: activeEventCount
+    });
+
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    // On error, render the page with 0s to avoid crashing
+    res.render('dashboard', {
+      totalUsers: 0,
+      pendingRequests: 0,
+      activeEvents: 0
+    });
+  }
 };
 
 // --- Role Request Functions ---
