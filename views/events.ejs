@@ -115,15 +115,13 @@
             newRow.classList.add('dynamic-row', 'points-row');
             newRow.innerHTML = `
                 <input type="text" name="points[${pointsIndex}][round]" placeholder="Round Description" required class="points-desc" style="width: 100%; margin-bottom: 10px;">
-                <div style="display: flex; gap: 20px;">
-                    <div class="points-group">
-                        <label>1st & 2nd Year Points</label>
-                        <input type="number" name="points[${pointsIndex}][juniorPoints]" placeholder="Points" required>
-                    </div>
-                    <div class="points-group">
-                        <label>3rd & 4th Year Points</label>
-                        <input type="number" name="points[${pointsIndex}][seniorPoints]" placeholder="Points" required>
-                    </div>
+                <div class="points-group">
+                    <label>1st & 2nd Year Points</label>
+                    <input type="number" name="points[${pointsIndex}][juniorPoints]" placeholder="Points" required>
+                </div>
+                <div class="points-group">
+                    <label>3rd & 4th Year Points</label>
+                    <input type="number" name="points[${pointsIndex}][seniorPoints]" placeholder="Points" required>
                 </div>
                 <button type="button" class="remove-btn" onclick="removeRow(this)" style="margin-top: 10px;">×</button>
             `;
