@@ -9,7 +9,6 @@ const {
   getRoleRequests,
   approveRoleRequest,
   rejectRoleRequest,
-  getManageEventsPage,
   getEventsPage,
 } = require('../controllers/dashboardController');
 const { createEvent } = require('../controllers/eventController'); // <-- THIS IS THE FIX
@@ -33,6 +32,5 @@ router.post('/roles/reject/:id', isAdmin, rejectRoleRequest);
 // Events routes
 router.get('/events', isAdmin, getEventsPage);
 router.post('/events', isAdmin, upload.single('thumbnail'), createEvent); // This line will now work
-router.get('/manage-events', isAdmin, getManageEventsPage);
 
 module.exports = router;

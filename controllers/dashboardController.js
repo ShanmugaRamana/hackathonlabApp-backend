@@ -61,23 +61,6 @@ const rejectRoleRequest = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
-const getManageEventsPage = async (req, res) => {
-    try {
-        // Fetch all events from the database, sorting the newest ones first
-        const events = await Event.find({}).sort({ createdAt: -1 });
-
-        // Render the new EJS page we are about to create
-        res.render('manage-events', {
-            title: 'Manage Events',
-            events: events, // Pass the events data to the view
-            user: req.user, // For the layout/header
-            path: '/dashboard/manage-events' // To set the active sidebar link
-        });
-    } catch (error) {
-        console.error('Error fetching events for manage page:', error);
-        res.status(500).send('Server Error');
-    }
-};
 // --- NEW EVENTS FUNCTION ---
 const getEventsPage = (req, res) => {
   try {
@@ -95,6 +78,5 @@ module.exports = {
   getRoleRequests,
   approveRoleRequest,
   rejectRoleRequest,
-  getManageEventsPage,
   getEventsPage, // Export new function
 };
