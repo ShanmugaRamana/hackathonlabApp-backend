@@ -58,7 +58,7 @@ API Endpoints Overview</div></h2>
 
 <br>
 
-## Author
+## Developer
 
 <div style="display: flex; align-items: center; gap: 16px;">
 
