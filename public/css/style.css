@@ -289,3 +289,94 @@ body {
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
+/* Paste this at the end of your existing /css/style.css file */
+
+/* Event Form Dynamic Field Styles */
+#timeline-container, #points-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.dynamic-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end; /* Aligns inputs and button along their bottom edge */
+    margin-bottom: 0; /* Handled by container gap */
+}
+
+.points-row {
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+/* Wrapper for label and input pairs */
+.form-field-group {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows field to take up available space based on flex value */
+}
+
+.form-field-group label {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+/* Unified style for inputs and selects within dynamic rows */
+.form-field-group input,
+.form-field-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    height: 45px; /* Set a fixed height for alignment */
+}
+
+/* Consolidated and improved remove button style */
+.remove-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    width: 45px;
+    height: 45px;
+    font-weight: bold;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0; /* Prevents the button from shrinking */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    padding: 0;
+}
+
+.remove-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Styling for 'Add' buttons */
+.button-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 0; /* Margin is now on the container */
+    width: auto;
+    display: inline-block;
+    font-weight: 600;
+}
+
+.button-secondary:hover {
+    background-color: #5a6268;
+}
