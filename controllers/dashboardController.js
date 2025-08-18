@@ -1,6 +1,6 @@
 const RoleRequest = require('../models/RoleRequest');
 const User = require('../models/User');
-
+const Event = require('../models/Event');
 // --- Login/Logout functions remain the same ---
 const getLoginPage = (req, res) => {
   res.render('login', { error: '' });
