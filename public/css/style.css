@@ -380,3 +380,58 @@ body {
 .button-secondary:hover {
     background-color: #5a6268;
 }
+.select-container {
+    --select-bg: #f0f2f5;
+    --select-border: #d9dbde;
+    --select-focus-border: #007bff;
+    --select-text-color: #333;
+    --select-arrow-color: #555;
+
+    position: relative;
+    width: 200px; /* Adjust width as needed */
+}
+
+.mode-select {
+    /* Reset default appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* Custom styles */
+    width: 100%;
+    padding: 12px 40px 12px 16px; /* Right padding for arrow space */
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--select-text-color);
+    background-color: var(--select-bg);
+    border: 1px solid var(--select-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Focus state for accessibility */
+.mode-select:focus {
+    outline: none;
+    border-color: var(--select-focus-border);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Custom dropdown arrow */
+.select-container::after {
+    content: '▼';
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--select-arrow-color);
+    pointer-events: none; /* Allows clicks to pass through to the select */
+}
+
+/* Styling for the dropdown options */
+.mode-select option {
+    padding: 10px;
+    background-color: #fff;
+    color: #333;
+}
