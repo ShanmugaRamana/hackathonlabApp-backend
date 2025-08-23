@@ -5,7 +5,6 @@ body {
     color: #333;
 }
 
-/* Login Page Styles */
 .login-body {
     display: flex;
     justify-content: center;
@@ -139,7 +138,6 @@ body {
     background-color: #2980b9;
 }
 
-/* Form Styles */
 .form-group input[type="text"],
 .form-group input[type="url"],
 .form-group input[type="number"],
@@ -158,7 +156,6 @@ body {
     resize: vertical;
 }
 
-/* Dynamic Row Styles */
 .dynamic-row {
     display: flex;
     align-items: center;
@@ -232,7 +229,6 @@ body {
 .button.reject:hover {
     background-color: #c0392b;
 }
-/* Add to /css/style.css */
 
 .stat-cards-container {
     display: grid;
@@ -289,9 +285,7 @@ body {
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
-/* Paste this at the end of your existing /css/style.css file */
 
-/* Event Form Dynamic Field Styles */
 #timeline-container, #points-container {
     display: flex;
     flex-direction: column;
@@ -302,8 +296,8 @@ body {
 .dynamic-row {
     display: flex;
     gap: 15px;
-    align-items: flex-end; /* Aligns inputs and button along their bottom edge */
-    margin-bottom: 0; /* Handled by container gap */
+    align-items: flex-end; 
+    margin-bottom: 0; 
 }
 
 .points-row {
@@ -313,11 +307,10 @@ body {
     background-color: #f9f9f9;
 }
 
-/* Wrapper for label and input pairs */
 .form-field-group {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Allows field to take up available space based on flex value */
+    flex-grow: 1; 
 }
 
 .form-field-group label {
@@ -327,7 +320,6 @@ body {
     font-weight: 600;
 }
 
-/* Unified style for inputs and selects within dynamic rows */
 .form-field-group input,
 .form-field-group select {
     width: 100%;
@@ -337,10 +329,9 @@ body {
     box-sizing: border-box;
     font-family: 'Montserrat', sans-serif;
     font-size: 14px;
-    height: 45px; /* Set a fixed height for alignment */
+    height: 45px; 
 }
 
-/* Consolidated and improved remove button style */
 .remove-btn {
     background-color: #e74c3c;
     color: white;
@@ -351,7 +342,7 @@ body {
     font-weight: bold;
     font-size: 20px;
     cursor: pointer;
-    flex-shrink: 0; /* Prevents the button from shrinking */
+    flex-shrink: 0; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -363,7 +354,6 @@ body {
     background-color: #c0392b;
 }
 
-/* Styling for 'Add' buttons */
 .button-secondary {
     background-color: #6c757d;
     color: white;
@@ -371,7 +361,7 @@ body {
     padding: 10px 15px;
     border-radius: 8px;
     cursor: pointer;
-    margin-top: 0; /* Margin is now on the container */
+    margin-top: 0; 
     width: auto;
     display: inline-block;
     font-weight: 600;
@@ -388,18 +378,16 @@ body {
     --select-arrow-color: #555;
 
     position: relative;
-    width: 200px; /* Adjust width as needed */
+    width: 200px; 
 }
 
 .mode-select {
-    /* Reset default appearance */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
 
-    /* Custom styles */
     width: 100%;
-    padding: 12px 40px 12px 16px; /* Right padding for arrow space */
+    padding: 12px 40px 12px 16px; 
     font-size: 16px;
     font-family: 'Montserrat', sans-serif;
     color: var(--select-text-color);
@@ -410,14 +398,12 @@ body {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Focus state for accessibility */
 .mode-select:focus {
     outline: none;
     border-color: var(--select-focus-border);
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-/* Custom dropdown arrow */
 .select-container::after {
     content: '▼';
     position: absolute;
@@ -426,7 +412,7 @@ body {
     transform: translateY(-50%);
     font-size: 12px;
     color: var(--select-arrow-color);
-    pointer-events: none; /* Allows clicks to pass through to the select */
+    pointer-events: none; 
 }
 select {
     width: 20%;
@@ -436,9 +422,8 @@ select {
     box-sizing: border-box;
     font-family: 'Montserrat', sans-serif;
     font-size: 14px;
-    height: 45px; /* Set a fixed height for alignment */
+    height: 45px; 
 }
-/* Styling for the dropdown options */
 option {
     padding: 10px;
     background-color: #fff;

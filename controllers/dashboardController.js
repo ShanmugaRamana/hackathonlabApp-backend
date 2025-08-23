@@ -1,7 +1,6 @@
 const RoleRequest = require('../models/RoleRequest');
 const User = require('../models/User');
 const Event = require('../models/Event');
-// --- Login/Logout functions remain the same ---
 const getLoginPage = (req, res) => {
   res.render('login', { error: '' });
 };
@@ -20,17 +19,14 @@ const logoutAdmin = (req, res) => {
   });
 };
 
-// --- Dashboard Page ---
 const getDashboardPage = async (req, res) => {
   try {
-    // Fetch all counts in parallel for better performance
     const [userCount, pendingRequestCount, activeEventCount] = await Promise.all([
       User.countDocuments(),
       RoleRequest.countDocuments({ status: 'Pending' }),
-      Event.countDocuments({ status: 'Open' }) // Assuming 'Open' means active
+      Event.countDocuments({ status: 'Open' }) 
     ]);
 
-    // Render the dashboard and pass the data to it
     res.render('dashboard', {
       totalUsers: userCount,
       pendingRequests: pendingRequestCount,
@@ -39,7 +35,6 @@ const getDashboardPage = async (req, res) => {
 
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    // On error, render the page with 0s to avoid crashing
     res.render('dashboard', {
       totalUsers: 0,
       pendingRequests: 0,
@@ -48,7 +43,6 @@ const getDashboardPage = async (req, res) => {
   }
 };
 
-// --- Role Request Functions ---
 const getRoleRequests = async (req, res) => {
   try {
     const requests = await RoleRequest.find({ status: 'Pending' });
@@ -84,7 +78,6 @@ const rejectRoleRequest = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
-// --- NEW EVENTS FUNCTION ---
 const getEventsPage = (req, res) => {
   try {
     res.render('events');
@@ -101,5 +94,5 @@ module.exports = {
   getRoleRequests,
   approveRoleRequest,
   rejectRoleRequest,
-  getEventsPage, // Export new function
+  getEventsPage, 
 };

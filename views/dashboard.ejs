@@ -6,7 +6,6 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Adding Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
@@ -34,7 +33,6 @@
                 <p>Welcome back, Admin!</p>
             </header>
             
-            <!-- ===== REDESIGNED CONTENT SECTION ===== -->
             <section class="content">
                 <div class="stat-cards-container">
                     
@@ -44,7 +42,6 @@
                         </div>
                         <div class="stat-info">
                             <p class="stat-title">Total Users</p>
-                            <!-- This value is now dynamic -->
                             <h3 class="stat-value"><%= totalUsers %></h3> 
                         </div>
                     </div>
@@ -55,7 +52,6 @@
                         </div>
                         <div class="stat-info">
                             <p class="stat-title">Pending Requests</p>
-                             <!-- This value is now dynamic -->
                             <h3 class="stat-value"><%= pendingRequests %></h3>
                         </div>
                     </div>
@@ -66,14 +62,12 @@
                         </div>
                         <div class="stat-info">
                             <p class="stat-title">Active Events</p>
-                             <!-- This value is now dynamic -->
                             <h3 class="stat-value"><%= activeEvents %></h3>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- You can add more sections here later, like recent activity or charts -->
                 <div class="card-placeholder">
                     <h3>Upcomming Updates From Developer</h3>
                     <p>1. Adding a dedicated page on side panel for managining events.<br><br>
@@ -82,7 +76,6 @@
                 </div>
 
             </section>
-            <!-- ===================================== -->
 
         </main>
     </div>

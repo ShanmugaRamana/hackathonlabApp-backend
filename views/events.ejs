@@ -56,7 +56,6 @@
                         <div class="form-group">
                             <label>Event Timeline</label>
                             <div id="timeline-container">
-                                <!-- Timeline items will be added here -->
                             </div>
                             <button type="button" id="add-timeline-btn" class="button-secondary">Add Timeline Item</button>
                         </div>
@@ -64,7 +63,6 @@
                         <div class="form-group">
                             <label>Points Structure</label>
                             <div id="points-container">
-                                <!-- Points items will be added here -->
                             </div>
                             <button type="button" id="add-points-btn" class="button-secondary">Add Points Field</button>
                         </div>
@@ -133,11 +131,8 @@
             button.parentElement.remove();
         }
 
-        // Add initial timeline and points items
         document.addEventListener('DOMContentLoaded', () => {
-            // Add one timeline item by default
             document.getElementById('add-timeline-btn').click();
-            // Add one points item by default
             document.getElementById('add-points-btn').click();
         });
     </script>
