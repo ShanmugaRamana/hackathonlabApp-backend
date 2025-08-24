@@ -1,4 +1,3 @@
-// ===== FIXED server.js =====
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
@@ -12,10 +11,9 @@ const http = require('http');
 const { Server } = require("socket.io");
 const User = require('./models/User');
 const Chat = require('./models/Chat');
-const admin = require('./config/firebase'); // Assuming firebase config exists
-const imagekit = require('./config/imagekit'); // ✅ add this
+const admin = require('./config/firebase'); 
+const imagekit = require('./config/imagekit'); 
 
-// Import route files
 const authRoutes = require('./routes/authRoutes');
 const homeRoutes = require('./routes/homeRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
@@ -24,7 +22,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
-const uploadRoutes = require('./routes/uploadRoutes'); // <-- THIS LINE WAS MISSING
+const uploadRoutes = require('./routes/uploadRoutes'); 
 
 dotenv.config();
 const app = express();
@@ -54,7 +52,6 @@ app.use('/api/profile', profileRoutes);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Mount Routers
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/roles', roleRoutes);
@@ -62,7 +59,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/upload', uploadRoutes); // <-- THIS LINE WAS MISSING
+app.use('/api/upload', uploadRoutes); 
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -75,7 +72,6 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('✅ a user connected:', socket.id);
 
-  // --- UPDATED sendMessage HANDLER with replyTo ---
   socket.on('sendMessage', async ({ text, userId, images, videos, documents, replyTo }) => {
     try {
       const user = await User.findById(userId);
@@ -88,7 +84,7 @@ io.on('connection', (socket) => {
           images,
           videos,
           documents,
-          replyTo, // Add the reply information
+          replyTo, 
           user: { _id: user._id, name: user.name, profilePicture: user.profilePicture } 
         });
 
@@ -129,10 +125,8 @@ io.on('connection', (socket) => {
       const message = await Chat.findById(messageId);
 
       if (message && message.user._id.toString() === userId) {
-        // ✅ THIS IS THE FIX: Save the original text for monitoring
         message.originalText = message.text;
         
-        // Update the message content
         message.text = 'This message was unsent';
         message.images = [];
         message.videos = [];
@@ -153,10 +147,10 @@ io.on('connection', (socket) => {
 });
 
 app.use((error, req, res, next) => {
-  console.error('🚨 Global Error Handler:', error);
+  console.error('Global Error Handler:', error);
   
   if (error instanceof multer.MulterError) {
-    console.log('📁 Multer Error:', error.code, error.message);
+    console.log('Multer Error:', error.code, error.message);
     
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ message: 'File too large. Maximum size is 5MB.' });
@@ -173,8 +167,8 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`API Base URL: http://localhost:${PORT}/api`);
 });
 
 module.exports = app;

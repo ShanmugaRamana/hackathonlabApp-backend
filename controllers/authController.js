@@ -57,7 +57,7 @@ const signupUser = async (req, res) => {
   }
 };
 
-// @desc    Verify user's email
+// @desc    Verify user's email 
 const verifyEmail = async (req, res) => {
     const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
     try {
