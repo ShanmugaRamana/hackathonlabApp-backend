@@ -2,6 +2,10 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
+
+
+const passport = require("passport");
+
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
@@ -23,6 +27,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
 const uploadRoutes = require('./routes/uploadRoutes'); 
+require("./middleware/googleAuth");
 
 dotenv.config();
 const app = express();
@@ -31,6 +36,7 @@ startEventStatusUpdater();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(passport.initialize());
 
 app.use(cors({
   origin: true,
