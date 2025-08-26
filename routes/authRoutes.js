@@ -24,7 +24,6 @@ router.post('/forgot-password', forgotPassword);
 router.get('/reset-password/:token', showResetPasswordForm);
 router.post('/reset-password/:token', resetPassword);
 router.post('/resend-verification', resendVerificationEmail);
-router.post('/google', googleSignIn);
 
 // Protected route for logged-in users
 router.put('/change-password', protect, changePassword);

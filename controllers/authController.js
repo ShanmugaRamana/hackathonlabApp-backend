@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const { OAuth2Client } = require('google-auth-library'); // <-- Add this import
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const jwt = require('jsonwebtoken');
@@ -11,7 +10,6 @@ const generateToken = (id) => {
     expiresIn: '30d',
   });
 };
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @desc    Register/Signup a new user and send verification email
 const signupUser = async (req, res) => {
@@ -335,54 +333,6 @@ const resendVerificationEmail = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-const googleSignIn = async (req, res) => {
-  const { idToken } = req.body;
-
-  try {
-    // 1. Verify the ID token with Google
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const { name, email, picture } = ticket.getPayload();
-
-    // 2. Check if the user already exists in your database
-    let user = await User.findOne({ email });
-
-    if (user) {
-      // If user exists, they are logged in.
-      // You might want to update their name or profile picture here if it has changed.
-      user.name = name;
-      user.profilePicture = picture;
-      await user.save();
-    } else {
-      // 3. If user does not exist, create a new user account
-      user = new User({
-        name,
-        email,
-        profilePicture: picture,
-        isVerified: true, // Email is verified by Google
-      });
-      await user.save();
-    }
-
-    // 4. Generate your app's own JWT and send it back
-    const token = generateToken(user._id);
-    res.status(200).json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        profilePicture: user.profilePicture,
-      },
-    });
-
-  } catch (error) {
-    console.error('Google Sign-In Error:', error);
-    res.status(400).json({ message: 'Google Sign-In failed. Please try again.' });
-  }
-};
 module.exports = {
   signupUser,
   verifyEmail,
@@ -393,5 +343,4 @@ module.exports = {
   deleteAccount,
   changePassword,
   resendVerificationEmail,
-  googleSignIn,
 };
