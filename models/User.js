@@ -51,6 +51,11 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  // In your userSchema
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event'
+  }],
   emailVerificationToken: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
