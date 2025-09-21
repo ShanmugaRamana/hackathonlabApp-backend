@@ -1,5 +1,8 @@
 const Event = require('../models/Event');
 const imagekit = require('../config/imagekit');
+// --- NEW: Add User and JWT for checking favorites ---
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 // @desc    Create a new event
 // @route   POST /dashboard/events
@@ -21,7 +24,6 @@ const createEvent = async (req, res) => {
     // Process timeline data
     const timeline = [];
     if (timelineData && typeof timelineData === 'object') {
-      // If timelineData is an object with numeric keys, convert to array
       const timelineArray = Array.isArray(timelineData) ? timelineData : Object.values(timelineData);
       
       timelineArray.forEach(item => {
@@ -39,7 +41,6 @@ const createEvent = async (req, res) => {
     // Process points data
     const points = [];
     if (pointsData && typeof pointsData === 'object') {
-      // If pointsData is an object with numeric keys, convert to array
       const pointsArray = Array.isArray(pointsData) ? pointsData : Object.values(pointsData);
       
       pointsArray.forEach(item => {
@@ -95,7 +96,7 @@ const createEvent = async (req, res) => {
 
 // @desc    Get all events for the mobile app
 // @route   GET /api/events
-// @access  Private
+// @access  Public
 const getEvents = async (req, res) => {
   try {
     const events = await Event.find({}).sort({ createdAt: -1 }); // Newest first
@@ -119,16 +120,49 @@ const getDashboardEvents = async (req, res) => {
   }
 };
 
+// --- UPDATED FUNCTION ---
+// @desc    Fetch a single event by ID and check favorite status
+// @route   GET /api/events/:id
+// @access  Public
 const getEventById = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (event) {
-      res.json(event);
-    } else {
-      res.status(404).json({ message: 'Event not found' });
+    try {
+        const event = await Event.findById(req.params.id);
+
+        if (!event) {
+            return res.status(44).json({ message: 'Event not found' });
+        }
+
+        let isFavorited = false;
+        const authHeader = req.headers.authorization;
+
+        if (authHeader && authHeader.startsWith('Bearer')) {
+            try {
+                const token = authHeader.split(' ')[1];
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const user = await User.findById(decoded.id);
+
+                if (user && user.favorites.includes(req.params.id)) {
+                    isFavorited = true;
+                }
+            } catch (error) {
+                // Token is invalid or expired, user is not logged in.
+                // Do nothing, isFavorited will remain false.
+            }
+        }
+        
+        // Add the isFavorited field to the event object before sending it
+        res.json({ ...event.toObject(), isFavorited });
+
+    } catch (error) {
+        console.error("Error fetching event by ID:", error);
+        res.status(500).json({ message: 'Server Error' });
     }
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
 };
-module.exports = { createEvent, getEvents, getDashboardEvents, getEventById };
+
+module.exports = {
+  createEvent,
+  getEvents,
+  getDashboardEvents,
+  getEventById
+};
+
