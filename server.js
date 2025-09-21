@@ -27,6 +27,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
 const uploadRoutes = require('./routes/uploadRoutes'); 
+const quantumRoutes = require('./routes/quantumRoutes');
 
 dotenv.config();
 const app = express();
@@ -64,6 +65,7 @@ app.use('/dashboard', dashboardRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes); 
+app.use('/api/quantum', quantumRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
