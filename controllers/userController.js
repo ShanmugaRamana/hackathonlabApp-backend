@@ -1,12 +1,8 @@
 const User = require('../models/User');
 
-// @desc    Register a device token for push notifications
-// @route   POST /api/users/register-device
-// @access  Private
 const registerDevice = async (req, res) => {
   const { token } = req.body;
   const userId = req.user._id;
-
   try {
     await User.findByIdAndUpdate(userId, { fcmToken: token });
     res.status(200).json({ message: 'Device registered successfully' });
@@ -16,43 +12,38 @@ const registerDevice = async (req, res) => {
   }
 };
 
-// --- NEW FUNCTION ---
-// @desc    Add or remove an event from user's favorites
-// @route   POST /api/users/favorites
-// @access  Private
 const toggleFavoriteEvent = async (req, res) => {
     try {
         const { eventId } = req.body;
-        // req.user is attached by the 'protect' middleware
         const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Check if the event is already in the favorites array
         const index = user.favorites.indexOf(eventId);
-
         if (index > -1) {
-            // If it exists, remove it (unfavorite)
-            user.favorites.splice(index, 1);
+            user.favorites.splice(index, 1); // Remove if exists
         } else {
-            // If it doesn't exist, add it (favorite)
-            user.favorites.push(eventId);
+            user.favorites.push(eventId); // Add if doesn't exist
         }
-
         await user.save();
-        res.status(200).json({ message: 'Favorites updated successfully.' });
-
+        res.status(200).json({ message: 'Favorites updated.' });
     } catch (error) {
-        console.error('Error toggling favorite event:', error);
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
+const getFavoriteEvents = async (req, res) => {
+  try {
+    // Find the user and use .populate() to get the full event details
+    const user = await User.findById(req.user._id).populate('favorites');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json(user.favorites);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
-// --- UPDATED EXPORTS ---
 module.exports = {
   registerDevice,
   toggleFavoriteEvent,
+  getFavoriteEvents,
 };
