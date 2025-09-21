@@ -127,26 +127,6 @@ const getEventById = async (req, res) => {
     } else {
       res.status(404).json({ message: 'Event not found' });
     }
-    let isFavorited = false;
-    const authHeader = req.headers.authorization;
-
-        // Check if the user is logged in by looking for the auth token
-        if (authHeader && authHeader.startsWith('Bearer')) {
-            try {
-                const token = authHeader.split(' ')[1];
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                const user = await User.findById(decoded.id);
-
-                // If user is found, check if this event is in their favorites
-                if (user && user.favorites.includes(req.params.id)) {
-                    isFavorited = true;
-                }
-            } catch (error) {
-                // If token is invalid/expired, we do nothing.
-                // The user is treated as logged out, so isFavorited remains false.
-            }
-        }
-        res.json({ ...event.toObject(), isFavorited });
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
