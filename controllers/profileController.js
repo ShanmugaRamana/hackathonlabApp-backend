@@ -86,8 +86,35 @@ const updateProfile = async (req, res) => {
       }
     }
 
-    // --- Handle profile picture upload ---
-    if (req.file) {
+    // --- Handle profile picture operations ---
+    
+    // Check if user wants to delete profile picture (empty string sent from frontend)
+    if ('profilePicture' in req.body && req.body.profilePicture === '') {
+      console.log('🗑️  User requested profile picture deletion');
+      
+      // Store old profile picture for potential cleanup
+      const oldProfilePicture = user.profilePicture;
+      
+      // Remove profile picture from user
+      user.profilePicture = undefined;
+      
+      console.log('✅ Profile picture removed from user object');
+      
+      // Optional: Delete from ImageKit (uncomment if you want to clean up old images)
+      /*
+      if (oldProfilePicture && oldProfilePicture.includes('imagekit.io')) {
+        try {
+          // Extract fileId from URL or use ImageKit's delete API
+          // This requires additional ImageKit configuration
+          console.log('🗑️  Would delete old image from ImageKit:', oldProfilePicture);
+        } catch (deleteError) {
+          console.warn('⚠️  Could not delete old image from ImageKit:', deleteError.message);
+        }
+      }
+      */
+    } 
+    // Handle new profile picture upload
+    else if (req.file) {
       console.log('📸 Processing file upload...');
       console.log('File details:', {
         name: req.file.originalname,
@@ -154,7 +181,7 @@ const updateProfile = async (req, res) => {
         });
       }
     } else {
-      console.log('ℹ️  No file to upload');
+      console.log('ℹ️  No profile picture changes requested');
     }
 
     console.log('💾 Saving user to database...');
