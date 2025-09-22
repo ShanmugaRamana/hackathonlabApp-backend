@@ -12,6 +12,7 @@ const chatSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+
   isUnsent: {
     type: Boolean,
     default: false,
@@ -20,7 +21,7 @@ const chatSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  // --- NEW FIELD FOR REPLIES ---
+  // --- REPLY FUNCTIONALITY ---
   replyTo: {
     messageId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -32,6 +33,17 @@ const chatSchema = new mongoose.Schema({
     authorName: {
       type: String,
     },
+    mediaType: { 
+      type: String, 
+      enum: ['image', 'video'] 
+    },
+    mediaThumbnail: { 
+      type: String 
+    }, // URL to the first image/video
+    mediaCount: {
+      type: Number,
+      default: 0
+    } // Number of media items in the original message
   },
   user: {
     _id: {
