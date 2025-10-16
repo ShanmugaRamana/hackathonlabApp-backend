@@ -29,9 +29,86 @@ const signupUser = async (req, res) => {
     if (user) {
       const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email/${verificationToken}`;
       const message = `
-        <h1>Account Verification</h1>
-        <p>Thank you for registering! Please click the link below to verify your email address:</p>
-        <a href="${verificationUrl}" clicktracking=off>${verificationUrl}</a>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Your Email</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7fa;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <!-- Main Container -->
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                
+                <!-- Header Section with Banner GIF -->
+                <tr>
+                  <td style="padding: 0; text-align: center; background-color: #000000;">
+                    <img src="https://i.pinimg.com/originals/a4/c1/32/a4c132ada8c1797c0cbd93d8609a9ac4.gif" alt="Welcome to HackathonLab" style="width: 100%; max-width: 600px; height: auto; display: block; border: 0;">
+                  </td>
+                </tr>
+                
+                <!-- Content Section -->
+                <tr>
+                  <td style="padding: 40px 30px;">
+                    <h2 style="margin: 0 0 20px 0; color: #1a202c; font-size: 22px; font-weight: 600;">
+                      Verify Your Email Address
+                    </h2>
+                    
+                    <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
+                      Thank you for registering! We're excited to have you on board. To complete your registration and start exploring, please verify your email address by clicking the button below.
+                    </p>
+                    
+                    <!-- CTA Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                      <tr>
+                        <td align="center">
+                          <a href="${verificationUrl}" clicktracking="off" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+                            Verify Email Address
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <p style="margin: 30px 0 10px 0; color: #718096; font-size: 14px; line-height: 1.6;">
+                      If the button doesn't work, copy and paste this link into your browser:
+                    </p>
+                    
+                    <div style="background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; word-break: break-all;">
+                      <a href="${verificationUrl}" clicktracking="off" style="color: #667eea; text-decoration: underline; font-size: 14px;">
+                        ${verificationUrl}
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Divider -->
+                <tr>
+                  <td style="padding: 0 30px;">
+                    <div style="border-top: 1px solid #e2e8f0;"></div>
+                  </td>
+                </tr>
+                
+                <!-- Footer Section -->
+                <tr>
+                  <td style="padding: 30px; text-align: center; background-color: #f7fafc;">
+                    <p style="margin: 0 0 10px 0; color: #a0aec0; font-size: 13px;">
+                      If you didn't create an account with HackathonLab, you can safely ignore this email.
+                    </p>
+                    <p style="margin: 0; color: #a0aec0; font-size: 13px;">
+                      © ${new Date().getFullYear()} HackathonLab. All rights reserved.
+                    </p>
+                  </td>
+                </tr>
+                
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
       `;
       try {
         await sendEmail({

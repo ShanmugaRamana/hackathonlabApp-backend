@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification UI Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #e5e7eb;
+    }
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .test-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .test-header h1 {
+      color: #1a202c;
+      margin: 0 0 10px 0;
+    }
+    .test-header p {
+      color: #718096;
+      margin: 0;
+    }
+    .preview-label {
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .email-preview {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #f4f7fa;
+    }
+    .controls {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f7fafc;
+      border-radius: 8px;
+    }
+    .controls label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #1a202c;
+    }
+    .controls input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .controls button {
+      margin-top: 15px;
+      padding: 12px 24px;
+      background-color: #000000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .controls button:hover {
+      background-color: #333333;
+    }
+    .controls button.secondary {
+      background-color: #6b7280;
+      margin-left: 10px;
+    }
+    .controls button.secondary:hover {
+      background-color: #4b5563;
+    }
+    .info-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      border-radius: 4px;
+    }
+    .info-box p {
+      margin: 0;
+      color: #1e40af;
+      font-size: 14px;
+    }
+    .info-box.warning {
+      background-color: #fef3c7;
+      border-left-color: #f59e0b;
+    }
+    .info-box.warning p {
+      color: #92400e;
+    }
+    .info-box.success {
+      background-color: #d1fae5;
+      border-left-color: #10b981;
+    }
+    .info-box.success p {
+      color: #065f46;
+    }
+    iframe {
+      width: 100%;
+      min-height: 700px;
+      border: none;
+    }
+    .quick-tests {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    .quick-tests button {
+      margin-top: 0;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+    #imageStatus {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Email Verification UI Test</h1>
+      <p>Preview and test the email verification template</p>
+    </div>
+
+    <div class="controls">
+      <label for="bannerUrl">Banner Image URL:</label>
+      <input 
+        type="text" 
+        id="bannerUrl" 
+        placeholder="https://your-server.com/assets/images/emailbanner.png"
+        value="https://i.pinimg.com/1200x/04/4c/09/044c09d3fbaf86d4acbc5354581aba98.jpg"
+      >
+
+      <div class="quick-tests">
+        <button class="secondary" onclick="testPinterestImage()">Pinterest Image</button>
+        <button class="secondary" onclick="testLocalImage()">Local Image</button>
+        <button class="secondary" onclick="testFallback()">Test Fallback</button>
+        <button class="secondary" onclick="testImage()">Check Image</button>
+      </div>
+
+      <div id="imageStatus"></div>
+
+      <label for="verificationUrl" style="margin-top: 15px;">Verification URL:</label>
+      <input 
+        type="text" 
+        id="verificationUrl" 
+        placeholder="https://yourapp.com/verify-email?token=sample-token-123"
+        value="https://hackathonlabapp-backend.onrender.com/api/auth/verify-email?token=sample-verification-token-123456"
+      >
+
+      <button onclick="updatePreview()">Update Preview</button>
+    </div>
+
+    <div class="info-box">
+      <p><strong>Note:</strong> This is a test preview. Update the Banner Image URL and Verification URL above to see how the email will look with your actual URLs.</p>
+    </div>
+
+    <div style="margin-top: 30px;">
+      <div class="preview-label">Email Preview:</div>
+      <div class="email-preview">
+        <iframe id="emailPreview" title="Email Preview"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getEmailTemplate(bannerUrl, verificationUrl) {
+      return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Email</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7fa;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <!-- Main Container -->
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
+          
+          <!-- Header Section with Banner Image -->
+          <tr>
+            <td style="padding: 0; text-align: center; background-color: #000000;">
+              <img src="${bannerUrl}" alt="Welcome to HackathonLab" style="width: 100%; max-width: 600px; height: auto; display: block; border: 0;">
+            </td>
+          </tr>
+          
+          <!-- Content Section -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #1a202c; font-size: 22px; font-weight: 600;">
+                Verify Your Email Address
+              </h2>
+              
+              <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
+                Thank you for registering! We're excited to have you on board. To complete your registration and start exploring, please verify your email address by clicking the button below.
+              </p>
+              
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${verificationUrl}" clicktracking="off" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+                      Verify Email Address
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 30px 0 10px 0; color: #718096; font-size: 14px; line-height: 1.6;">
+                If the button doesn't work, copy and paste this link into your browser:
+              </p>
+              
+              <div style="background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; word-break: break-all;">
+                <a href="${verificationUrl}" clicktracking="off" style="color: #000000; text-decoration: none; font-size: 14px;">
+                  ${verificationUrl}
+                </a>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Divider -->
+          <tr>
+            <td style="padding: 0 30px;">
+              <div style="border-top: 1px solid #e2e8f0;"></div>
+            </td>
+          </tr>
+          
+          <!-- Footer Section -->
+          <tr>
+            <td style="padding: 30px; text-align: center; background-color: #f7fafc;">
+              <p style="margin: 0 0 10px 0; color: #a0aec0; font-size: 13px;">
+                If you didn't create an account with HackathonLab, you can safely ignore this email.
+              </p>
+              <p style="margin: 0; color: #a0aec0; font-size: 13px;">
+                © ${new Date().getFullYear()} HackathonLab. All rights reserved.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+      `;
+    }
+
+    function showImageStatus(message, type = 'info') {
+      const statusDiv = document.getElementById('imageStatus');
+      statusDiv.style.display = 'block';
+      statusDiv.className = type;
+      statusDiv.textContent = message;
+      
+      if (type === 'success') {
+        statusDiv.style.backgroundColor = '#d1fae5';
+        statusDiv.style.color = '#065f46';
+        statusDiv.style.border = '1px solid #10b981';
+      } else if (type === 'error') {
+        statusDiv.style.backgroundColor = '#fee2e2';
+        statusDiv.style.color = '#991b1b';
+        statusDiv.style.border = '1px solid #ef4444';
+      } else {
+        statusDiv.style.backgroundColor = '#dbeafe';
+        statusDiv.style.color = '#1e40af';
+        statusDiv.style.border = '1px solid #3b82f6';
+      }
+    }
+
+    function testImage() {
+      const bannerUrl = document.getElementById('bannerUrl').value;
+      
+      if (!bannerUrl) {
+        showImageStatus('Please enter an image URL', 'error');
+        return;
+      }
+
+      showImageStatus('Testing image URL...', 'info');
+
+      const img = new Image();
+      
+      img.onload = function() {
+        showImageStatus(`✓ Image loaded successfully! (${img.width}x${img.height}px)`, 'success');
+      };
+      
+      img.onerror = function() {
+        showImageStatus('✗ Failed to load image. Check the URL or CORS policy.', 'error');
+      };
+      
+      img.src = bannerUrl;
+    }
+
+    function updatePreview() {
+      const bannerUrl = document.getElementById('bannerUrl').value || 'https://i.pinimg.com/1200x/04/4c/09/044c09d3fbaf86d4acbc5354581aba98.jpg';
+      const verificationUrl = document.getElementById('verificationUrl').value || 'https://hackathonlabapp-backend.onrender.com/api/auth/verify-email?token=sample-token';
+      
+      const iframe = document.getElementById('emailPreview');
+      const emailHtml = getEmailTemplate(bannerUrl, verificationUrl);
+      
+      // Write content to iframe
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      iframeDoc.open();
+      iframeDoc.write(emailHtml);
+      iframeDoc.close();
+    }
+
+    function testPinterestImage() {
+      document.getElementById('bannerUrl').value = 'https://i.pinimg.com/1200x/04/4c/09/044c09d3fbaf86d4acbc5354581aba98.jpg';
+      updatePreview();
+    }
+
+    function testLocalImage() {
+      document.getElementById('bannerUrl').value = 'http://localhost:5000/assets/images/emailbanner.png';
+      updatePreview();
+    }
+
+    function testFallback() {
+      document.getElementById('bannerUrl').value = 'https://invalid-url-that-does-not-exist.com/image.jpg';
+      updatePreview();
+    }
+
+    // Load preview on page load
+    window.onload = function() {
+      updatePreview();
+      testImage();
+    };
+  </script>
+</body>
+</html>
