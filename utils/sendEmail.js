@@ -1,19 +1,19 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-  // 1. Create a transporter object using a more explicit SMTP configuration
-  // This is more reliable than just using the 'service' property, especially on servers.
+  // This is the validated transporter configuration that the test script successfully used.
+  // It's more reliable for servers than using the simple 'service' option.
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST || 'smtp.gmail.com', // Explicitly define the host
-    port: process.env.EMAIL_PORT || 465,              // Use port 465 for SSL, the most common secure port
-    secure: true,                                     // `true` for port 465, `false` for other ports like 587
+    port: process.env.EMAIL_PORT || 465,              // Use port 465 for SSL (secure connection)
+    secure: true,                                     // Must be true for port 465
     auth: {
-      user: process.env.EMAIL_USERNAME, // Your email address
-      pass: process.env.EMAIL_PASSWORD, // Your email password or app-specific password
+      user: process.env.EMAIL_USERNAME, // Your full email address
+      pass: process.env.EMAIL_PASSWORD, // Your 16-character App Password
     },
   });
 
-  // 2. Define the email options (this part remains the same)
+  // Define the email options
   const mailOptions = {
     from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
     to: options.email,
@@ -21,7 +21,7 @@ const sendEmail = async (options) => {
     html: options.message,
   };
 
-  // 3. Actually send the email (this part remains the same)
+  // Send the email
   await transporter.sendMail(mailOptions);
 };
 
