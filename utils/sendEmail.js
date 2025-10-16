@@ -1,31 +1,17 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
+  // 1. Create a transporter object using SMTP transport
+  // You need to use an email service provider (e.g., Gmail, SendGrid)
   const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: process.env.EMAIL_PORT || 465,
-    secure: true,
+    service: process.env.EMAIL_SERVICE, // e.g., 'gmail'
     auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
+      user: process.env.EMAIL_USERNAME, // Your email address
+      pass: process.env.EMAIL_PASSWORD, // Your email password or app-specific password
     },
-    // --- NEW: Add connection timeouts for faster failures ---
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000, // 10 seconds
-    socketTimeout: 10000, // 10 seconds
   });
 
-  // --- NEW: Verify the connection configuration ---
-  // This is a great debugging step.
-  try {
-    await transporter.verify();
-    console.log('✅ SMTP Server connection is ready.');
-  } catch (error) {
-    console.error('❌ SMTP Server connection failed. Check credentials and firewall settings.', error);
-    // Re-throw the error to be caught by the calling function
-    throw new Error('Failed to connect to email server. Please check server configuration.');
-  }
-
+  // 2. Define the email options
   const mailOptions = {
     from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
     to: options.email,
@@ -33,15 +19,8 @@ const sendEmail = async (options) => {
     html: options.message,
   };
 
-  // --- NEW: Add try...catch around the sendMail call ---
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('❌ Failed to send email:', error);
-    // Re-throw the error so the calling function (e.g., in authController) can handle it
-    throw error;
-  }
+  // 3. Actually send the email
+  await transporter.sendMail(mailOptions);
 };
 
 module.exports = sendEmail;
-
