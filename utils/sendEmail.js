@@ -22,8 +22,8 @@ const sendEmail = async (options) => {
       user: process.env.BREVO_SMTP_USER,
       pass: process.env.BREVO_SMTP_PASS, // This is your Brevo SMTP Key
     },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000, // 10 seconds
+    connectionTimeout: 15000, // Increased timeout to 15 seconds
+    greetingTimeout: 15000, // Increased timeout to 15 seconds
   });
 
   // 2. Define the email options
@@ -36,12 +36,22 @@ const sendEmail = async (options) => {
 
   // 3. Send the email and handle potential errors
   try {
-    console.log('🚀 Attempting to send email via Brevo SMTP...');
+    console.log(`🚀 Attempting to send email via Brevo SMTP on port ${process.env.BREVO_SMTP_PORT}...`);
     await transporter.sendMail(mailOptions);
     console.log('✅ Email sent successfully via Brevo SMTP!');
   } catch (error) {
     console.error('❌ Failed to send email via Brevo SMTP.');
-    console.error('Error details:', error.message);
+    
+    // --- NEW: Better Error Handling ---
+    // Provide specific advice based on the error type
+    if (error.code === 'ETIMEDOUT') {
+      console.error('💡 HINT: A connection timeout on a deployed server often means the hosting provider (e.g., Render) is blocking the port. Please try switching to an alternative port like 465.');
+    } else if (error.responseCode === 535) {
+        console.error('💡 HINT: Authentication failed (Error 535). Please double-check your BREVO_SMTP_USER and BREVO_SMTP_PASS environment variables.');
+    } else {
+        console.error('Error details:', error.message);
+    }
+    
     throw new Error('Failed to send email.');
   }
 };
