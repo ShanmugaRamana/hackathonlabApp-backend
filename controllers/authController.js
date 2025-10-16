@@ -513,76 +513,232 @@ const showResetPasswordForm = (req, res) => {
     const token = req.params.token;
     res.setHeader('Content-Type', 'text/html');
     res.send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Reset Password</title>
-            <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-                .card { background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
-                h1 { color: #1c1e21; margin-bottom: 24px; }
-                input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #dddfe2; box-sizing: border-box; font-size: 16px; }
-                button { width: 100%; padding: 12px; border: none; border-radius: 6px; background-color: #1877f2; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-                button:hover { background-color: #166fe5; }
-                button:disabled { background-color: #9cb4d8; cursor: not-allowed; }
-                .message { margin-top: 20px; font-size: 14px; font-weight: 500; }
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <h1>Set a New Password</h1>
-                <form id="resetForm">
-                    <input type="password" id="password" name="password" placeholder="Enter new password" required>
-                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required>
-                    <button type="submit">Reset Password</button>
-                </form>
-                <p id="message" class="message"></p>
-            </div>
-            <script>
-                document.getElementById('resetForm').addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const pathParts = window.location.pathname.split('/');
-                    const token = pathParts[pathParts.length - 1];
-                    const password = document.getElementById('password').value;
-                    const confirmPassword = document.getElementById('confirmPassword').value;
-                    const messageEl = document.getElementById('message');
-                    const buttonEl = document.querySelector('button');
-                    if (password !== confirmPassword) {
-                        messageEl.textContent = 'Passwords do not match!';
-                        messageEl.style.color = 'red';
-                        return;
-                    }
-                    buttonEl.disabled = true;
-                    messageEl.textContent = 'Resetting...';
-                    messageEl.style.color = 'black';
-                    try {
-                        const response = await fetch('/api/auth/reset-password/' + token, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ password })
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            messageEl.textContent = 'Password has been reset successfully! You can close this window.';
-                            messageEl.style.color = 'green';
-                            document.querySelector('form').style.display = 'none';
-                        } else {
-                            messageEl.textContent = data.message || 'Failed to reset password.';
-                            messageEl.style.color = 'red';
-                            buttonEl.disabled = false;
-                        }
-                    } catch (error) {
-                        messageEl.textContent = 'An error occurred. Please try again.';
-                        messageEl.style.color = 'red';
-                        buttonEl.disabled = false;
-                    }
-                });
-            </script>
-        </body>
-        </html>
-    `);
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Reset Password - Hackathon Lab App</title>
+          <style>
+              * {
+                  margin: 0;
+                  padding: 0;
+                  box-sizing: border-box;
+              }
+              body { 
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+                  background-color: #f4f4f4; 
+                  display: flex; 
+                  justify-content: center; 
+                  align-items: center; 
+                  min-height: 100vh; 
+                  padding: 20px;
+              }
+              .container {
+                  background-color: white; 
+                  border-radius: 8px; 
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+                  width: 100%; 
+                  max-width: 450px;
+                  overflow: hidden;
+              }
+              .header {
+                  padding: 30px;
+                  text-align: center;
+                  border-bottom: 1px solid #eeeeee;
+              }
+              .header h1 {
+                  color: #000000;
+                  font-size: 24px;
+                  font-weight: bold;
+                  margin-bottom: 5px;
+              }
+              .content {
+                  padding: 40px 30px;
+              }
+              .content h2 {
+                  color: #333333;
+                  font-size: 20px;
+                  margin-bottom: 10px;
+                  text-align: center;
+              }
+              .content p {
+                  color: #666666;
+                  font-size: 14px;
+                  text-align: center;
+                  margin-bottom: 30px;
+              }
+              .form-group {
+                  margin-bottom: 20px;
+              }
+              label {
+                  display: block;
+                  color: #333333;
+                  font-size: 14px;
+                  font-weight: 500;
+                  margin-bottom: 8px;
+              }
+              input { 
+                  width: 100%; 
+                  padding: 12px 15px; 
+                  border-radius: 5px; 
+                  border: 1px solid #dddfe2; 
+                  font-size: 15px;
+                  transition: border-color 0.2s;
+              }
+              input:focus {
+                  outline: none;
+                  border-color: #000000;
+              }
+              button { 
+                  width: 100%; 
+                  padding: 14px; 
+                  border: none; 
+                  border-radius: 5px; 
+                  background-color: #000000; 
+                  color: white; 
+                  font-size: 16px; 
+                  font-weight: bold; 
+                  cursor: pointer; 
+                  transition: background-color 0.2s;
+                  margin-top: 10px;
+              }
+              button:hover { 
+                  background-color: #333333; 
+              }
+              button:disabled { 
+                  background-color: #999999; 
+                  cursor: not-allowed; 
+              }
+              .message { 
+                  margin-top: 20px; 
+                  padding: 12px;
+                  border-radius: 5px;
+                  font-size: 14px; 
+                  font-weight: 500;
+                  text-align: center;
+                  display: none;
+              }
+              .message.success {
+                  background-color: #d4edda;
+                  color: #155724;
+                  border: 1px solid #c3e6cb;
+                  display: block;
+              }
+              .message.error {
+                  background-color: #f8d7da;
+                  color: #721c24;
+                  border: 1px solid #f5c6cb;
+                  display: block;
+              }
+              .message.info {
+                  background-color: #d1ecf1;
+                  color: #0c5460;
+                  border: 1px solid #bee5eb;
+                  display: block;
+              }
+              .footer {
+                  background-color: #f8f8f8;
+                  padding: 20px 30px;
+                  text-align: center;
+                  border-top: 1px solid #eeeeee;
+              }
+              .footer p {
+                  color: #999999;
+                  font-size: 12px;
+                  margin: 0;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Hackathon Lab App</h1>
+              </div>
+              
+              <div class="content">
+                  <h2>Set a New Password</h2>
+                  <p>Enter your new password below</p>
+                  
+                  <form id="resetForm">
+                      <div class="form-group">
+                          <label for="password">New Password</label>
+                          <input type="password" id="password" name="password" placeholder="Enter new password" required minlength="6">
+                      </div>
+                      
+                      <div class="form-group">
+                          <label for="confirmPassword">Confirm Password</label>
+                          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required minlength="6">
+                      </div>
+                      
+                      <button type="submit">Reset Password</button>
+                  </form>
+                  
+                  <div id="message" class="message"></div>
+              </div>
+              
+              <div class="footer">
+                  <p>© ${new Date().getFullYear()} Hackathon Lab App. All rights reserved.</p>
+              </div>
+          </div>
+          
+          <script>
+              document.getElementById('resetForm').addEventListener('submit', async function(e) {
+                  e.preventDefault();
+                  const pathParts = window.location.pathname.split('/');
+                  const token = pathParts[pathParts.length - 1];
+                  const password = document.getElementById('password').value;
+                  const confirmPassword = document.getElementById('confirmPassword').value;
+                  const messageEl = document.getElementById('message');
+                  const buttonEl = document.querySelector('button');
+                  
+                  // Reset message
+                  messageEl.className = 'message';
+                  messageEl.style.display = 'none';
+                  
+                  if (password !== confirmPassword) {
+                      messageEl.textContent = 'Passwords do not match!';
+                      messageEl.className = 'message error';
+                      return;
+                  }
+                  
+                  if (password.length < 6) {
+                      messageEl.textContent = 'Password must be at least 6 characters long!';
+                      messageEl.className = 'message error';
+                      return;
+                  }
+                  
+                  buttonEl.disabled = true;
+                  messageEl.textContent = 'Resetting your password...';
+                  messageEl.className = 'message info';
+                  
+                  try {
+                      const response = await fetch('/api/auth/reset-password/' + token, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ password })
+                      });
+                      const data = await response.json();
+                      
+                      if (response.ok) {
+                          messageEl.textContent = 'Password has been reset successfully! You can now close this window and login with your new password.';
+                          messageEl.className = 'message success';
+                          document.querySelector('form').style.display = 'none';
+                      } else {
+                          messageEl.textContent = data.message || 'Failed to reset password. Please try again or request a new reset link.';
+                          messageEl.className = 'message error';
+                          buttonEl.disabled = false;
+                      }
+                  } catch (error) {
+                      messageEl.textContent = 'An error occurred. Please check your connection and try again.';
+                      messageEl.className = 'message error';
+                      buttonEl.disabled = false;
+                  }
+              });
+          </script>
+      </body>
+      </html>
+  `);
 };
 
 // @desc    Reset password
