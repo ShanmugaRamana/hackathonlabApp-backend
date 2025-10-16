@@ -1,59 +1,50 @@
-// --- NEW: Import SDKs for all email services ---
-const { Resend } = require('resend');
-const Brevo = require('@getbrevo/brevo');
+// --- We use Nodemailer for direct SMTP connections ---
+const nodemailer = require('nodemailer');
 
-// --- Helper function for Brevo ---
-const sendWithBrevo = async (options) => {
-  const brevo = new Brevo.TransactionalEmailsApi();
-  brevo.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
-  await brevo.sendTransacEmail({
-    subject: options.subject,
-    sender: { email: process.env.FROM_EMAIL, name: process.env.FROM_NAME },
-    to: [{ email: options.email }],
-    htmlContent: options.message,
-  });
-};
-
-// --- Helper function for Resend ---
-const sendWithResend = async (options) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  await resend.emails.send({
-    from: `${process.env.FROM_NAME} <${process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'}>`,
-    to: [options.email],
-    subject: options.subject,
-    html: options.message,
-  });
-};
-
-// --- Main sendEmail function with fallback logic ---
 const sendEmail = async (options) => {
-  // List of services to try in order.
-  const services = [
-    { name: 'Brevo',   sender: sendWithBrevo,   apiKey: process.env.BREVO_API_KEY },
-    { name: 'Resend',  sender: sendWithResend,  apiKey: process.env.RESEND_API_KEY },
-  ];
-
-  for (const service of services) {
-    // Only attempt to use a service if its API key is provided
-    if (service.apiKey) {
-      try {
-        console.log(`🚀 Attempting to send email via ${service.name}...`);
-        await service.sender(options);
-        console.log(`✅ Email sent successfully via ${service.name}!`);
-        return; // Success! Exit the function.
-      } catch (error) {
-        console.error(`❌ Failed to send email via ${service.name}. Trying next service...`);
-        // Log the specific error for debugging
-        console.error(`Error details for ${service.name}:`, error.message);
-      }
-    } else {
-       console.log(`- Skipping ${service.name} (API key not found).`);
-    }
+  // Check that all required environment variables are present
+  if (
+    !process.env.BREVO_SMTP_HOST ||
+    !process.env.BREVO_SMTP_PORT ||
+    !process.env.BREVO_SMTP_USER ||
+    !process.env.BREVO_SMTP_PASS
+  ) {
+    console.error('❌ Brevo SMTP environment variables are not fully configured.');
+    throw new Error('Email service is not configured.');
   }
 
-  // If the loop finishes without returning, all services have failed.
-  console.error('❌ All configured email services failed. The email could not be sent.');
-  throw new Error('All email services failed.');
+  // 1. Create a transporter object using Brevo's SMTP details
+  const transporter = nodemailer.createTransport({
+    host: process.env.BREVO_SMTP_HOST,
+    port: parseInt(process.env.BREVO_SMTP_PORT, 10), // Ensure port is an integer
+    secure: process.env.BREVO_SMTP_PORT === '465', // `secure` is true for port 465, false for 587
+    auth: {
+      user: process.env.BREVO_SMTP_USER,
+      pass: process.env.BREVO_SMTP_PASS, // This is your Brevo SMTP Key
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000, // 10 seconds
+  });
+
+  // 2. Define the email options
+  const mailOptions = {
+    from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+    to: options.email,
+    subject: options.subject,
+    html: options.message,
+  };
+
+  // 3. Send the email and handle potential errors
+  try {
+    console.log('🚀 Attempting to send email via Brevo SMTP...');
+    await transporter.sendMail(mailOptions);
+    console.log('✅ Email sent successfully via Brevo SMTP!');
+  } catch (error) {
+    console.error('❌ Failed to send email via Brevo SMTP.');
+    console.error('Error details:', error.message);
+    throw new Error('Failed to send email.');
+  }
 };
 
 module.exports = sendEmail;
+
