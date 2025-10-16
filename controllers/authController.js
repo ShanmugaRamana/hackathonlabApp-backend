@@ -145,7 +145,255 @@ const verifyEmail = async (req, res) => {
         user.isVerified = true;
         user.emailVerificationToken = undefined;
         await user.save();
-        res.status(200).send('<h1>Email Verified Successfully!</h1><p>You can now close this tab and log in to the app.</p>');
+        res.status(200).send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Email Verified Successfully</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+              min-height: 100vh;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              position: relative;
+              overflow: hidden;
+            }
+            
+            /* Slowed down background GIF */
+            .background-wrapper {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              z-index: 0;
+            }
+            
+            .background-gif {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              animation: slowMotion 60s infinite linear;
+            }
+            
+            @keyframes slowMotion {
+              0% { opacity: 1; }
+              50% { opacity: 0.95; }
+              100% { opacity: 1; }
+            }
+            
+            /* Container above the GIF */
+            .container {
+              position: relative;
+              z-index: 10;
+              text-align: center;
+              padding: 60px 40px;
+              background-color: rgba(255, 255, 255, 0.98);
+              border-radius: 20px;
+              box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+              max-width: 600px;
+              margin: 20px;
+              animation: slideIn 0.6s ease-out;
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            @keyframes slideIn {
+              from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+              }
+            }
+            
+            .success-icon {
+              width: 100px;
+              height: 100px;
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+              border-radius: 50%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: 0 auto 30px;
+              animation: scaleIn 0.6s ease-out 0.3s both, pulse 2s ease-in-out 1s infinite;
+              box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
+            }
+            
+            @keyframes scaleIn {
+              from {
+                transform: scale(0) rotate(-180deg);
+              }
+              to {
+                transform: scale(1) rotate(0deg);
+              }
+            }
+            
+            @keyframes pulse {
+              0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
+              }
+              50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 40px rgba(16, 185, 129, 0.7);
+              }
+            }
+            
+            .success-icon i {
+              font-size: 50px;
+              color: white;
+              animation: iconBounce 0.6s ease-out 0.6s both;
+            }
+            
+            @keyframes iconBounce {
+              0% {
+                transform: scale(0);
+                opacity: 0;
+              }
+              50% {
+                transform: scale(1.2);
+              }
+              100% {
+                transform: scale(1);
+                opacity: 1;
+              }
+            }
+            
+            h1 {
+              color: #1a202c;
+              font-size: 32px;
+              font-weight: 700;
+              margin-bottom: 20px;
+              line-height: 1.3;
+              animation: fadeInUp 0.6s ease-out 0.4s both;
+            }
+            
+            p {
+              color: #4a5568;
+              font-size: 18px;
+              line-height: 1.6;
+              margin-bottom: 30px;
+              animation: fadeInUp 0.6s ease-out 0.5s both;
+            }
+            
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            
+            .button {
+              display: inline-block;
+              background-color: #000000;
+              color: #ffffff;
+              text-decoration: none;
+              padding: 16px 40px;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: 600;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+              transition: all 0.3s ease;
+              border: none;
+              cursor: pointer;
+              animation: fadeInUp 0.6s ease-out 0.6s both;
+            }
+            
+            .button:hover {
+              background-color: #333333;
+              transform: translateY(-2px);
+              box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            }
+            
+            .button:active {
+              transform: translateY(0);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+            
+            .info-text {
+              margin-top: 30px;
+              padding-top: 30px;
+              border-top: 2px solid #e2e8f0;
+              color: #718096;
+              font-size: 14px;
+              animation: fadeInUp 0.6s ease-out 0.7s both;
+            }
+            
+            @media (max-width: 600px) {
+              .container {
+                padding: 40px 30px;
+                margin: 15px;
+              }
+              
+              h1 {
+                font-size: 26px;
+              }
+              
+              p {
+                font-size: 16px;
+              }
+              
+              .success-icon {
+                width: 80px;
+                height: 80px;
+              }
+              
+              .success-icon i {
+                font-size: 40px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <!-- Background GIF -->
+          <div class="background-wrapper">
+            <img src="https://i.pinimg.com/originals/1d/bb/78/1dbb780172965ba15dca7dea222fe99f.gif" alt="Background" class="background-gif">
+          </div>
+          
+          <!-- Popup Container -->
+          <div class="container">
+            <div class="success-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <h1>Email Verified Successfully!</h1>
+            
+            <p>Your email has been confirmed. You can now close this tab and log in to the app.</p>
+            
+            <button class="button" onclick="window.close()">Close This Tab</button>
+            
+            <div class="info-text">
+              If the button doesn't work, you can manually close this tab and return to the app.
+            </div>
+          </div>
+          
+          <script>
+            // Auto-close after 10 seconds (optional)
+            setTimeout(function() {
+              window.close();
+            }, 10000);
+          </script>
+        </body>
+        </html>
+        `);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
