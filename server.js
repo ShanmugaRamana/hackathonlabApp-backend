@@ -52,6 +52,24 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false }
 }));
+app.get('/', (req, res) => {
+  console.log('/ route refreshed at', new Date().toLocaleString());
+
+  res.send(`
+    <html>
+      <head>
+        <title>Hackathon lab app backend</title>
+        <meta http-equiv="refresh" content="60">
+        <script>
+          console.log("Page refreshed at: " + new Date().toLocaleString());
+        </script>
+      </head>
+      <body style="font-family: sans-serif; text-align:center; margin-top: 20%;">
+        <h2>Hackathon Lab Backend Server is Running</h2>
+      </body>
+    </html>
+  `);
+});
 
 app.use('/api/profile', profileRoutes);
 app.use(express.json({ limit: '10mb' }));
