@@ -519,6 +519,7 @@ const showResetPasswordForm = (req, res) => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Reset Password - Hackathon Lab App</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
           <style>
               * {
                   margin: 0;
@@ -625,6 +626,23 @@ const showResetPasswordForm = (req, res) => {
                   border: 1px solid #c3e6cb;
                   display: block;
               }
+              .success-icon {
+                  font-size: 48px;
+                  color: #28a745;
+                  margin-bottom: 15px;
+                  animation: scaleIn 0.5s ease-out;
+              }
+              @keyframes scaleIn {
+                  0% {
+                      transform: scale(0);
+                  }
+                  50% {
+                      transform: scale(1.1);
+                  }
+                  100% {
+                      transform: scale(1);
+                  }
+              }
               .message.error {
                   background-color: #f8d7da;
                   color: #721c24;
@@ -721,7 +739,7 @@ const showResetPasswordForm = (req, res) => {
                       const data = await response.json();
                       
                       if (response.ok) {
-                          messageEl.textContent = 'Password has been reset successfully! You can now close this window and login with your new password.';
+                          messageEl.innerHTML = '<i class="fas fa-check-circle success-icon"></i><br>Password has been reset successfully! You can now close this window and login with your new password.';
                           messageEl.className = 'message success';
                           document.querySelector('form').style.display = 'none';
                       } else {
